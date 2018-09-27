@@ -1,0 +1,48 @@
+Ways to gain currency:
+-Through gaming wins(like fortnite and league of legends) and OSU gained pp
+-dailies(every 20 hours)
+-gambling (includes betting against other players)
+—horse racing?(stats for horse)
+—high low (number continues)
+—slots
+—picking color 
+—21
+—holding bets with players like: which team wins what games?(could just receive)
+-activity in discord
+-donations (transfers)
+-game betting (esports or even actual sport games)
+—maybe have a bet multiplier like cs:go lounge
+-1v1s
+—tic-tac-toe
+—snakes and ladder?
+—u can 1v1 the bot?
+-weekly lottery?
+-event gifts (make bot donate them)
+—Christmas
+—Chinese New Years
+
+
+Spend currency:
+-change the server icon
+-add an emote
+-cool things like muting someone for 5 minutes?(something like this)
+-changing font colors/ title colors
+-gaining titles for benefits example more money gained from bets or dailies 
+-rng boxes to gain cool items
+—item that lets u win the next game but it is gone upon use 
+-pin a message
+-access to voice channels?
+
+As a user:
+-Should be able to check my stats and inventory (if items exist)
+—game rankin and wins; amount of times gambled etc
+-trade system? If items exists
+-Maybe check the leaderboards?
+-gamble
+-dailies
+-donate
+-get help (manual of commands and in depth tutorials of commands)
+
+As an admin:
+-put up esports games and resolve them
+-to satisfy spending currency needs( server icon)
