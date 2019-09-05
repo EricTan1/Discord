@@ -62,7 +62,8 @@ Not avaliable yet
 * [DiscordPy](https://discordpy.readthedocs.io/en/latest/api.html) - The bot API used
 * [Flask](https://github.com/pallets/flask) - python web framework for oauth2
 * [Osu-Api](https://github.com/ppy/osu-api/wiki) - used to gather information about osu
-
+* [youtube_dl](https://github.com/ytdl-org/youtube-dl) - used to download music
+* [ffmpeg](https://www.ffmpeg.org/) - used to play music
 
 ## Versioning
 
