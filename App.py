@@ -5,13 +5,17 @@ import json
 import sys
 import os
 import aiohttp
-
+from discord.ext import commands
 # adding the paths of the different modules in the different folders
 # sys.path.append('./GambleGames/')
 
+# Setting global variables
+_command_prefix = '$'
 
 # create new discord bot obj
-client = discord.Client()
+client = commands.Bot(command_prefix=_command_prefix)
+
+
 
 # read the information for the api keys and put them in a dictionary
 _key_dict = None
@@ -24,26 +28,7 @@ except:
 # set the discord API key
 TOKEN = _key_dict["DISCORD"]
 
-@client.event
-# await client.send_message(message.channel, 'Say hello')
-# waiting for person to respond
-# msg = await client.wait_for_message(author=message.author, content='hello')
-async def on_message(message):
-    ''' (Str) -> None
-    This function controls the bot's to ability to respond to
-    different commands
-    '''
-    global _head
-    global _messageInitializer
-    global _key_dict
-    global client
-    # we do not want the bot to reply to itself
-    if message.author == client.user:
-        return
-    else:
-        # check if the proper msg intializer is used
-        if(message.content.startswith(_messageInitializer)):
-            await client.send_message(message.channel, 'Say hello')
+
         
 @client.event
 async def on_ready():
@@ -61,6 +46,9 @@ async def set_messageInt(messageInitializer):
     global _messageInitializer
     _messageInitializer = messageInitializer
 
+@client.command(pass_context=True)
+async def goodnight(ctx):
+    await client.send_message(ctx.message.channel, "GoodNight!")
 
 # Run the bot
 client.run(TOKEN)
