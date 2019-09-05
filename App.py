@@ -16,7 +16,6 @@ _command_prefix = '$'
 client = commands.Bot(command_prefix=_command_prefix)
 
 
-
 # read the information for the api keys and put them in a dictionary
 _key_dict = None
 KEY_PATH = "Data/keys.json"
@@ -49,6 +48,18 @@ async def set_messageInt(messageInitializer):
 @client.command(pass_context=True)
 async def goodnight(ctx):
     await client.send_message(ctx.message.channel, "GoodNight!")
+
+@client.command(pass_context=True)
+async def connect(ctx):
+    channel = ctx.message.author.voice.voice_channel
+    await client.join_voice_channel(channel)
+
+
+@client.command(pass_context=True)
+async def disconnect(ctx):
+    server = ctx.message.server
+    voice_client = client.voice_client_in(server)
+    await voice_client.disconnect()
 
 # Run the bot
 client.run(TOKEN)
