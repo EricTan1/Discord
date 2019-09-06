@@ -5,8 +5,11 @@ import json
 import sys
 import os
 import aiohttp
-import youtube_dl
 from discord.ext import commands
+
+# music player
+import youtube_dl
+
 # adding the paths of the different modules in the different folders
 # sys.path.append('./GambleGames/')
 
