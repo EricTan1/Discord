@@ -7,7 +7,7 @@ Anime music Quiz feature:<br />
 Checklist:<br />
 ✓AniList imports based on user and combine feature without overlaps<br />
 ✓Ability to datascrape urls for op/end music videos<br />
-✓Implementation of music player
+✓Implementation of music player <br />
 Xmusic player queue system<br />
 -Implmentation of guess<br />
 -Autocorrect/simiplify for guess<br />
