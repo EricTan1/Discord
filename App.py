@@ -94,11 +94,30 @@ async def close(ctx):
 
 @client.command()
 async def play(ctx, url):
-    server = ctx.message.server
-    voice_client = client.voice_client_in(server)
-    player = await voice_client.create_ytdl_player(url)
-    players[server.id] = player
-    player.start()
+    # if the bot current has audio on then stop it
+    if(ctx.guild.voice_client.is_playing()):
+        ctx.guild.voice_client.stop()
+    audio_source = discord.FFmpegPCMAudio(await download("test_song", url)["audio"])
+    ctx.guild.voice_client.play(audio_source)
+
+
+async def download(title, video_url):
+    ydl_opts = {
+        'outtmpl': '{}.%(ext)s'.format(title),
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([video_url])
+    return {
+        'audio': '{}.mp3'.format(title),
+        'title': title,
+    }
+
 
 # Run the bot
 client.run(TOKEN)
