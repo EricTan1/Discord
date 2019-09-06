@@ -93,30 +93,46 @@ async def close(ctx):
     await client.close()
 
 @client.command()
-async def play(ctx, url):
-    # if the bot current has audio on then stop it
-    if(ctx.guild.voice_client.is_playing()):
-        ctx.guild.voice_client.stop()
-    audio_source = discord.FFmpegPCMAudio(await download("test_song", url)["audio"])
-    ctx.guild.voice_client.play(audio_source)
+async def play(ctx, *url):
+    search = ' '.join(url)
+    # if the bot doesnt exists in a voice channel then dont do anything
+    if(ctx.guild.voice_client != None):
+        # if the bot current has audio on then stop it
+        if(ctx.guild.voice_client.is_playing()):
+            ctx.guild.voice_client.stop()
+
+        audio_source = discord.FFmpegPCMAudio(download("test_song", search))
+        ctx.guild.voice_client.play(audio_source)
 
 
-async def download(title, video_url):
+def download(title, video_url):
+    outtmpl = '{}.%(ext)s'.format(title)
+
     ydl_opts = {
-        'outtmpl': '{}.%(ext)s'.format(title),
         'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
+        'outtmpl': outtmpl,
+        'default_search': 'auto',
+        'postprocessors': [
+            {'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3',
+             'preferredquality': '192',
+             },
+            {'key': 'FFmpegMetadata'},
+        ],
+
     }
+
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_url])
-    return {
-        'audio': '{}.mp3'.format(title),
-        'title': title,
-    }
+        data = ydl.extract_info(video_url, download=False)
+
+        if(data.get('_type') != None):
+            if(data.get('entries') != None):
+                new_video_url = data.get('entries').pop(0).get('webpage_url')
+                ydl.download([new_video_url])
+            else:
+                print("ERROR NO ATTRIBUTE ENTRIES")
+        else:
+            ydl.download([video_url])
+    return '{}.mp3'.format(title)
 
 
 # Run the bot
