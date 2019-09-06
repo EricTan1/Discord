@@ -5,14 +5,14 @@ Currently working on:<br />
 <br />
 Anime music Quiz feature:<br />
 Checklist:<br />
-✓AniList imports based on user and combine feature without overlaps<br />
-✓Ability to datascrape urls for op/end music videos<br />
-✓Implementation of music player <br />
-Xmusic player queue system<br />
--Implmentation of guess<br />
--Autocorrect/simiplify for guess<br />
--point scoring system and starting/ending games. Settings for games<br />
--optimization and userfeedback<br />
+✓ AniList imports based on user and combine feature without overlaps<br />
+✓ Ability to datascrape urls for op/end music videos<br />
+✓ Implementation of music player <br />
+X music player queue system<br />
+X Implmentation of guess<br />
+X Autocorrect/simiplify for guess<br />
+X point scoring system and starting/ending games. Settings for games<br />
+X optimization and userfeedback<br />
 
 
 # Discord Bot
