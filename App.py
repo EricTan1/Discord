@@ -11,7 +11,13 @@ from discord.ext import commands
 import youtube_dl
 
 # adding the paths of the different modules in the different folders
-# sys.path.append('./GambleGames/')
+sys.path.append('./Games/')
+sys.path.append('./Music/')
+# Music player
+from MusicPlayer import MusicPlayer
+
+# AMQ imports
+from Amq import Amq
 
 # Setting global variables
 _command_prefix = '$'
@@ -149,6 +155,26 @@ async def download(title, video_url):
         data = data.get('url')
     # return '{}.mp3'.format(title)
     return data
+
+@client.command()
+async def game(ctx, game):
+    if(game.upper() == "AMQ"):
+        channel = ctx.channel
+        # get info to start game
+        await channel.send('Say hello!')
+
+        def check(m):
+            return m.content == 'hello' and m.channel == channel
+
+        msg = await client.wait_for('message', check=check)
+        await channel.send('Hello {.author}!'.format(msg))
+        participants = ctx.guild.voice_client.channel.members
+        print(participants)
+        current_game = Amq(client, participants, ctx.message.channel, ctx.guild.voice_client, MusicPlayer(), rounds=10, time_sec=20.0)
+        print("created amq obj")
+        await current_game.play_game()
+
+
 
 
 # Run the bot
