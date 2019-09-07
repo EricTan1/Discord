@@ -8,7 +8,7 @@ Checklist:<br />
 ✓ AniList imports based on user and combine feature without overlaps<br />
 ✓ Ability to datascrape urls for op/end music videos<br />
 ✓ Implementation of music player <br />
-X music player queue system<br />
+✓ music player queue system<br />
 X Implmentation of guess<br />
 X Autocorrect/simiplify for guess<br />
 X point scoring system and starting/ending games. Settings for games<br />
