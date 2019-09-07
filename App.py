@@ -104,16 +104,26 @@ async def play(ctx, *url):
         if(ctx.guild.voice_client.is_playing()):
             ctx.guild.voice_client.stop()
 
-        audio_source = discord.FFmpegPCMAudio(download("test_song", search))
+        audio_source = discord.FFmpegPCMAudio(await download("test_song", search))
+        # stream
+        # while not client.is_closed():
+            # try:
+                # audio_source = discord.FFmpegPCMAudio(await download("test_song", search))
+            # except Exception as e:
+                    # await ctx.send(f'There was an error processing your song.\n'
+                                             # f'```css\n[{e}]\n```')
+                    # continue
         ctx.guild.voice_client.play(audio_source)
 
 
-def download(title, video_url):
+
+async def download(title, video_url):
     outtmpl = '{}.%(ext)s'.format(title)
 
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': outtmpl,
+        'noplaylist': True,
         'default_search': 'auto',
         'postprocessors': [
             {'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3',
@@ -123,19 +133,22 @@ def download(title, video_url):
         ],
 
     }
-
+    # check if its a video or a search and get the temp
+    # streaming URL accordingly
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         data = ydl.extract_info(video_url, download=False)
-
+        print(data)
         if(data.get('_type') != None):
             if(data.get('entries') != None):
-                new_video_url = data.get('entries').pop(0).get('webpage_url')
-                ydl.download([new_video_url])
+                data = data.get('entries').pop(0)
+                # ydl.download([new_video_url])
             else:
                 print("ERROR NO ATTRIBUTE ENTRIES")
-        else:
-            ydl.download([video_url])
-    return '{}.mp3'.format(title)
+        url_list = data.get('formats')
+        data = url_list.pop(len(url_list) - 1)
+        data = data.get('url')
+    # return '{}.mp3'.format(title)
+    return data
 
 
 # Run the bot

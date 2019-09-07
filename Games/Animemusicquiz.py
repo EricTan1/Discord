@@ -19,7 +19,15 @@ class Amq(Game):
         super().__init__(bot)
 
 
-    def start_game(self):
+    async def start_game(self):
         pass
-    def end_game(self):
+   
+    def set_up(self):
+        pass
+
+    async def play_game(self):
+        pass
+
+    
+    async def end_game(self):
         pass
