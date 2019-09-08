@@ -9,9 +9,9 @@ Checklist:<br />
 ✓ Ability to datascrape urls for op/end music videos<br />
 ✓ Implementation of music player <br />
 ✓ music player queue system<br />
-X Implmentation of guess<br />
+✓ Implmentation of guess<br />
 X Autocorrect/simiplify for guess<br />
-X point scoring system and starting/ending games. Settings for games<br />
+✓ point scoring system and starting/ending games. Settings for games<br />
 X optimization and userfeedback<br />
 
 
