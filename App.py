@@ -73,7 +73,8 @@ async def connect(ctx):
     # if the bot is already in a voice channel
     elif(ctx.guild.voice_client != None):
         print("already in a voice channel")
-        # if the author of the message isn't already in the same voice channel as the bot
+        # if the author of the message isn't already in the same voice channel
+        # as the bot
         if(ctx.guild.voice_client.channel != author_voice.channel):
             await ctx.guild.voice_client.disconnect()
             await author_voice.channel.connect()
@@ -110,17 +111,9 @@ async def play(ctx, *url):
         if(ctx.guild.voice_client.is_playing()):
             ctx.guild.voice_client.stop()
 
-        audio_source = discord.FFmpegPCMAudio(await download("test_song", search))
-        # stream
-        # while not client.is_closed():
-            # try:
-                # audio_source = discord.FFmpegPCMAudio(await download("test_song", search))
-            # except Exception as e:
-                    # await ctx.send(f'There was an error processing your song.\n'
-                                             # f'```css\n[{e}]\n```')
-                    # continue
+        audio_source = discord.FFmpegPCMAudio(await download("test_song",
+                                                             search))
         ctx.guild.voice_client.play(audio_source)
-
 
 
 async def download(title, video_url):
@@ -161,16 +154,27 @@ async def game(ctx, game):
     if(game.upper() == "AMQ"):
         channel = ctx.channel
         # get info to start game
-        await channel.send('Say hello!')
-
+        await channel.send('Please type the parameters seperated by "#"\nState number of rounds')
         def check(m):
-            return m.content == 'hello' and m.channel == channel
+            check_bool = True
+            param_list = m.content.split("#")
+            if len(param_list) == 1:
+                try:
+                    param_list[0] = int(param_list[0])
+                except Exception:
+                    check_bool = False
+            else:
+                check_bool = False
+            return check_bool and m.channel == channel
 
         msg = await client.wait_for('message', check=check)
+
         await channel.send('Hello {.author}!'.format(msg))
         participants = ctx.guild.voice_client.channel.members
         print(participants)
-        current_game = Amq(client, participants, ctx.message.channel, ctx.guild.voice_client, MusicPlayer(client), rounds=5, time_sec=35.0)
+        current_game = Amq(client, participants,
+                           ctx.message.channel, ctx.guild.voice_client,
+                           MusicPlayer(client), rounds=10, time_sec=40.0)
         client.add_cog(current_game)
         await current_game.set_up()
         await current_game.play_game()

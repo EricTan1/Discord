@@ -44,7 +44,7 @@ class Amq(commands.Cog):
             # Union two sets (no repeats)
             #import AniList
             second_list = []
-            response = await get_aniList('orange2pick')
+            response = await get_aniList('woahs')
 
             #response = requests.post(url, json={'query': query, 'variables': variables})
             list_data = response.get("data").get("MediaListCollection").get('lists')
@@ -86,16 +86,22 @@ class Amq(commands.Cog):
                 # if the bot currently has audio on then stop it
                 if(self.text_channel.guild.voice_client.is_playing()):
                     self.text_channel.guild.voice_client.stop()
-                audio_source = discord.FFmpegPCMAudio(self.music_player.download("test_song", current_song.english_name + " opening tv size"))
-                await self.music_player.play_music(audio_source, self.text_channel, self.voice_channel)
+                audio_source = discord.FFmpegPCMAudio(self.music_player.download("test_song", current_song.english_name.replace(':', ' ') + " opening tv size"))
+                try:
+                    await self.music_player.play_music(audio_source, self.text_channel, self.voice_channel)
+                except Exception:
+                    await self.text_channel.send("Error in getting URL")
+                    continue
                 await self.text_channel.send("Playing Song")
 
             channel = self.text_channel
 
-            await channel.send('Send me that \U0001f44e reaction, to skip')
+            msg = await channel.send('Send me that \U0001f44e reaction, to skip')
+            print("adding reaction")
+            await msg.add_reaction('\U0001f44e')
 
             def check(reaction, user):
-                return str(reaction.emoji) == '\U0001f44e'
+                return str(reaction.emoji) == '\U0001f44e' and user.id != self.bot.user.id
 
             try:
                 reaction, user = await self.bot.wait_for('reaction_add', timeout=self.time_per_song, check=check)
@@ -116,9 +122,11 @@ class Amq(commands.Cog):
         # check answers and reward points
         for players in self.participants:
             if(players.guess != None):
-                if(players.guess in current_song.name):
-                    await self.text_channel.send(players.mention + " guessed it correctly!")
-                    players.score = players.score + 1
+                for songs in current_song.name:
+                    if(players.guess.upper() == songs.upper()):
+                        await self.text_channel.send(players.mention + " guessed it correctly!")
+                        players.score = players.score + 1
+                        break
                 # reset the guesses
                 players.guess = None
         # send answer
@@ -142,7 +150,7 @@ class Amq(commands.Cog):
         for players in self.participants:
             temp_embed.add_field(name=players.name, value="Score: " + str(players.score), inline="false")
         await self.text_channel.send(embed=temp_embed)
-    @commands.command()
+    @commands.command(aliases=['g'])
     async def guess(self, ctx, *guess):
         search = ' '.join(guess)
         for players in self.participants:
@@ -150,9 +158,10 @@ class Amq(commands.Cog):
                 print(players.score)
                 players.guess = search
 
-    @commands.command()
-    async def search(self, ctx, anime):
-        res = await get_aniListAnime(anime)
+    @commands.command(aliases=['s'])
+    async def search(self, ctx, *anime):
+        search = ' '.join(anime)
+        res = await get_aniListAnime(search)
         anime_data = res.get("data").get("Media")
         anime_data.get('title').get('english')
         anime_data.get('title').get('romaji')
@@ -207,7 +216,8 @@ async def get_aniList(user):
     url = 'https://graphql.anilist.co/'
     ret = []
     async with aiohttp.ClientSession() as cs:
-        async with cs.request('POST', url, json={'query': query, 'variables': variables}) as r:
+        async with cs.request('POST', url, json={'query': query,
+                                                 'variables': variables}) as r:
             response = await r.json()  # returns dict
 
     return response
@@ -237,7 +247,8 @@ async def get_aniListAnime(anime_name):
     url = 'https://graphql.anilist.co/'
     ret = []
     async with aiohttp.ClientSession() as cs:
-        async with cs.request('POST', url, json={'query': query, 'variables': variables}) as r:
+        async with cs.request('POST', url, json={'query': query,
+                                                 'variables': variables}) as r:
             response = await r.json()  # returns dict
 
     return response
