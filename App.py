@@ -170,10 +170,11 @@ async def game(ctx, game):
         await channel.send('Hello {.author}!'.format(msg))
         participants = ctx.guild.voice_client.channel.members
         print(participants)
-        current_game = Amq(client, participants, ctx.message.channel, ctx.guild.voice_client, MusicPlayer(client), rounds=10, time_sec=20.0)
-        print("created amq obj")
+        current_game = Amq(client, participants, ctx.message.channel, ctx.guild.voice_client, MusicPlayer(client), rounds=5, time_sec=35.0)
+        client.add_cog(current_game)
         await current_game.set_up()
         await current_game.play_game()
+        # remove cog after game finishes
 
 
 
