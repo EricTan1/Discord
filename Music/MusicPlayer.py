@@ -42,7 +42,7 @@ class MusicPlayer:
         # streaming URL accordingly
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             data = ydl.extract_info(video_url, download=False)
-            print(data)
+            # print(data)
             if(data.get('_type') != None):
                 if(data.get('entries') != None):
                     data = data.get('entries').pop(0)

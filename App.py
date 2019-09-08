@@ -154,7 +154,7 @@ async def game(ctx, game):
     if(game.upper() == "AMQ"):
         channel = ctx.channel
         # get info to start game
-        await channel.send('Please type the parameters seperated by "#"\nState number of rounds')
+        await channel.send('Please type the parameters seperated by "#"\nState number of rounds', delete_after=40)
         def check(m):
             check_bool = True
             param_list = m.content.split("#")
@@ -169,12 +169,12 @@ async def game(ctx, game):
 
         msg = await client.wait_for('message', check=check)
 
-        await channel.send('Hello {.author}!'.format(msg))
+        await channel.send('Hello {.author}!'.format(msg), delete_after=10)
         participants = ctx.guild.voice_client.channel.members
         print(participants)
         current_game = Amq(client, participants,
                            ctx.message.channel, ctx.guild.voice_client,
-                           MusicPlayer(client), rounds=10, time_sec=40.0)
+                           MusicPlayer(client), rounds=5, time_sec=40.0)
         client.add_cog(current_game)
         await current_game.set_up()
         await current_game.play_game()
