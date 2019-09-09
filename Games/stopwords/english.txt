@@ -1,6 +1,7 @@
 .
 a
 &
+!
 about
 above
 after

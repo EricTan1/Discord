@@ -172,6 +172,7 @@ class Amq(commands.Cog):
     async def end_game(self):
         # remove the commands
         self.bot.remove_cog(self)
+        print("removed cog?")
         # send answer
         temp_embed=discord.Embed()
         temp_embed.title="Anime Music Quiz Results"
@@ -182,14 +183,15 @@ class Amq(commands.Cog):
 
     @commands.command(aliases=['g'])
     async def guess(self, ctx, *guess):
-        search = ' '.join(guess)
+        # combine the guess fragments together and get rid of spoilers
+        search = ' '.join(guess).replace('|', '')
         for players in self.participants:
             if(players.id == ctx.message.author.id):
                 players.guess = search
 
     @commands.command(aliases=['s'])
     async def search(self, ctx, *anime):
-        search = ' '.join(anime)
+        search = ' '.join(anime).replace('|', '')
 
         res = await get_aniListAnime(search)
         # if there is a response
@@ -197,10 +199,10 @@ class Amq(commands.Cog):
             anime_data = res.get("data").get("Media")
             anime_data.get('title').get('english')
             anime_data.get('title').get('romaji')
-            await self.text_channel.send("Did you mean: {} or {}".format(anime_data.get('title').get('english'), anime_data.get('title').get('romaji')), delete_after=10)
+            await ctx.author.send("Did you mean: {} or {}".format(anime_data.get('title').get('english'), anime_data.get('title').get('romaji')), delete_after=10)
         else:
-            await self.text_channel.send("No search results", delete_after=5)
-            
+            await ctx.author.send("No search results", delete_after=5)
+
     async def load_stopwords(self, file_name):
         lineList = list()
         # with open(file_name, encoding="utf8") as f:
