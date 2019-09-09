@@ -10,9 +10,9 @@ Checklist:<br />
 ✓ Implementation of music player <br />
 ✓ music player queue system<br />
 ✓ Implmentation of guess<br />
-X Autocorrect/simiplify for guess<br />
+✓ Autocorrect/simiplify for guess<br />
 ✓ point scoring system and starting/ending games. Settings for games<br />
-X optimization and userfeedback<br />
+✓ optimization and userfeedback<br />
 
 
 # Discord Bot
