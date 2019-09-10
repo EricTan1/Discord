@@ -13,7 +13,6 @@ from Game import Game
 from importlib import reload
 import aiohttp
 
-
 class Amq(commands.Cog):
     ''' This class is responsible for the entire anime music quiz game
     
@@ -49,7 +48,7 @@ class Amq(commands.Cog):
             # Union two sets (no repeats)
             # import AniList
             second_list=[]
-            response=await get_aniList('woahs')
+            response = await get_aniList('woahs')
 
             # response = requests.post(url, json={'query': query, 'variables': variables})
             list_data=response.get("data").get("MediaListCollection").get('lists')
@@ -71,7 +70,7 @@ class Amq(commands.Cog):
         for x in range(self.rounds):
                 song_name=self.aniList_personal.pop(randrange(len(self.aniList_personal) - 1))
                 if(song_name != None):
-                    res=await get_aniListAnime(song_name)
+                    res = await get_aniListAnime_single(song_name)
                     anime_data=res.get("data").get("Media")
                     name_types = []
                     name_types.append(anime_data.get('title').get('english'))
@@ -106,7 +105,7 @@ class Amq(commands.Cog):
             await msg.add_reaction('\U0001f44e')
 
             def check(reaction, user):
-                return str(reaction.emoji) == '\U0001f44e' and user.id != self.bot.user.id
+                return str(reaction.emoji) == '\U0001f44e' and reaction.count >= len(self.participants)
 
             try:
                 reaction, user = await self.bot.wait_for('reaction_add', timeout=self.time_per_song, check=check)
@@ -171,7 +170,7 @@ class Amq(commands.Cog):
 
     async def end_game(self):
         # remove the commands
-        self.bot.remove_cog(self)
+        self.bot.remove_cog("Amq")
         print("removed cog?")
         # send answer
         temp_embed=discord.Embed()
@@ -195,11 +194,17 @@ class Amq(commands.Cog):
 
         res = await get_aniListAnime(search)
         # if there is a response
+        print(res)
         if(res != None or res.get("data") != None):
-            anime_data = res.get("data").get("Media")
-            anime_data.get('title').get('english')
-            anime_data.get('title').get('romaji')
-            await ctx.author.send("Did you mean: {} or {}".format(anime_data.get('title').get('english'), anime_data.get('title').get('romaji')), delete_after=10)
+            anime_data = res.get("data").get("Page")
+            anime_data = anime_data.get("media")
+            temp_embed = discord.Embed()
+            temp_embed.title = "Anime Search Results"
+            temp_embed.color = 786236
+            for anime in anime_data:
+                temp_embed.add_field(name=anime.get('title').get('english'), value=anime.get('title').get('romaji'), inline="false")
+
+            await ctx.author.send(embed=temp_embed, delete_after=20)
         else:
             await ctx.author.send("No search results", delete_after=5)
 
@@ -267,20 +272,56 @@ async def get_aniList(user):
 async def get_aniListAnime(anime_name):
     query = query = '''
     query ($search: String) { 
-      Media (search:$search,type: ANIME) {
-            siteUrl
-            description
-            coverImage{
-                medium
-            }
-            title{
-                english
-                romaji
-                native
-            }
-                
-        }
+  Page(page: 1, perPage: 10){
+    media (search:$search,type: ANIME) {
+      bannerImage
+      siteUrl
+      tags{
+        description
       }
+      coverImage{
+        medium
+      }
+    title{
+        english
+        romaji
+        native
+    }
+}
+    }
+  }
+    '''
+    variables = {
+        'search': anime_name,
+    }
+
+    url = 'https://graphql.anilist.co/'
+    ret = []
+    async with aiohttp.ClientSession() as cs:
+        async with cs.request('POST', url, json={'query': query,
+                                                 'variables': variables}) as r:
+            response = await r.json()  # returns dict
+
+    return response
+async def get_aniListAnime_single(anime_name):
+    query = query = '''
+    query ($search: String) { 
+    Media (search:$search,type: ANIME) {
+      bannerImage
+      siteUrl
+      tags{
+        description
+      }
+      coverImage{
+        medium
+      }
+    title{
+        english
+        romaji
+        native
+    }
+    }
+  }
     '''
     variables = {
         'search': anime_name,

@@ -174,7 +174,7 @@ async def game(ctx, game):
         print(participants)
         current_game = Amq(client, participants,
                            ctx.message.channel, ctx.guild.voice_client,
-                           MusicPlayer(client), rounds=20, time_sec=40.0)
+                           MusicPlayer(client), rounds=5, time_sec=40.0)
         client.add_cog(current_game)
         await current_game.set_up()
         await current_game.play_game()
