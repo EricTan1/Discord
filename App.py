@@ -148,33 +148,34 @@ async def download(title, video_url):
         data = data.get('url')
     # return '{}.mp3'.format(title)
     return data
-
+# global var b/c check function cant share vars with outter function
+options =0
 @client.command()
 async def game(ctx, game):
+    global options
     if(game.upper() == "AMQ"):
         channel = ctx.channel
         # get info to start game
-        await channel.send('Please type the parameters seperated by "#"\nState number of rounds', delete_after=40)
+        await channel.send('State number of rounds\nDefault: 20', delete_after=40)
         def check(m):
+            global options
             check_bool = True
-            param_list = m.content.split("#")
-            if len(param_list) == 1:
-                try:
-                    param_list[0] = int(param_list[0])
-                except Exception:
-                    check_bool = False
-            else:
+            options = m.content
+            # if the parameter they passed in isnt an integer then
+            # ignore it until they pass one in
+            try:
+                options = int(options)
+            except Exception:
                 check_bool = False
             return check_bool and m.channel == channel
 
         msg = await client.wait_for('message', check=check)
 
-        await channel.send('Hello {.author}!'.format(msg), delete_after=10)
+        await channel.send('Starting Game', delete_after=10)
         participants = ctx.guild.voice_client.channel.members
-        print(participants)
         current_game = Amq(client, participants,
                            ctx.message.channel, ctx.guild.voice_client,
-                           MusicPlayer(client), rounds=5, time_sec=40.0)
+                           MusicPlayer(client), rounds=options, time_sec=35.0)
         client.add_cog(current_game)
         await current_game.set_up()
         await current_game.play_game()

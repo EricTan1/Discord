@@ -18,8 +18,13 @@ class Amq(commands.Cog):
     
     '''
 
-    def __init__(self, bot, participants, text_channel, voice_channel, music_player, rounds=3, time_sec=20.0):
-        ''' (Amq, discord.Client, List of Strings, int, double,) -> Amq
+    def __init__(self, bot, participants, text_channel, voice_channel, music_player, rounds=20, time_sec=35.0, anime_list=['woahs']):
+        ''' (Amq, discord.Client, List of user, int, double, List of Strings) -> Amq
+        Takes in the discord.client obj
+        Takes in list of discord.user obj
+        Takes in discord.textchannel obj
+        Takes in dsicord.voicechannel obj
+        Takes in the Musicplaer obj
         '''
         # super().__init__(bot)
         self.bot = bot
@@ -29,12 +34,18 @@ class Amq(commands.Cog):
         self.voice_channel = voice_channel
         self.time_per_song = time_sec
         self.test = None
+        self.anime_list = anime_list
         # index 0 = english, index 1 = romaji, index 2 = japanese
         self.stop_words = []
         self.participants = participants
 
 
     async def set_up(self):
+        ''' (Amq) -> None
+        The set up method for Amq. This method loads in the stopwords, creates
+        the player objs, fetches and randomizes the animeLists and loads in the
+        anime information
+        '''
         # Loading stop words
         # english
         self.stop_words.append(await self.load_stopwords("Games/stopwords/english.txt"))
@@ -45,10 +56,14 @@ class Amq(commands.Cog):
         # initializing the player list
         for person in self.participants:
             p_list.append(Player(person.id, person.name, person.mention))
+        # loop through all the anime lists and union the two lists w/o repeats
+        # All strings here
+        for index in range(len(self.anime_list)):
             # Union two sets (no repeats)
             # import AniList
-            second_list=[]
-            response = await get_aniList('woahs')
+            second_list = []
+            # based on user
+            response = await get_aniList(self.anime_list[index])
 
             # response = requests.post(url, json={'query': query, 'variables': variables})
             list_data=response.get("data").get("MediaListCollection").get('lists')
@@ -61,27 +76,31 @@ class Amq(commands.Cog):
             in_first=set(anime_list)
             in_second=set(second_list)
             in_second_but_not_in_first=in_second - in_first
-            anime_list=anime_list + list(in_second_but_not_in_first)
+            anime_list=anime_list + list(in_second_but_not_in_first)            
 
-        self.participants=p_list
-        self.aniList_personal=anime_list
+        self.participants = p_list
+        self.aniList_personal = anime_list
         # RANDO ANIME CHOOSING CODE HERE
-        self.animeQueue=Queue(self.rounds)
+        self.animeQueue = Queue(self.rounds)
         for x in range(self.rounds):
-                song_name=self.aniList_personal.pop(randrange(len(self.aniList_personal) - 1))
+                song_name = self.aniList_personal.pop(randrange(len(self.aniList_personal) - 1))
                 if(song_name != None):
                     res = await get_aniListAnime_single(song_name)
-                    anime_data=res.get("data").get("Media")
+                    anime_data = res.get("data").get("Media")
                     name_types = []
                     name_types.append(anime_data.get('title').get('english'))
                     name_types.append(anime_data.get('title').get('romaji'))
                     name_types.append(anime_data.get('title').get('native'))
-                    pic_url=anime_data.get('coverImage').get('medium')
-                    site_url=anime_data.get('siteUrl')
-                    desc=anime_data.get('description')
+                    pic_url = anime_data.get('coverImage').get('medium')
+                    site_url = anime_data.get('siteUrl')
+                    desc = anime_data.get('description')
                     self.animeQueue.put(Song(anime_data.get('title').get('english'), name_types, pic_url, site_url, desc))
 
     async def play_game(self):
+        ''' (Amq) -> None
+        This method starts the entire game. It loops through the randomized anime
+        list and plays the songs with the optional skip
+        '''
         while (not self.animeQueue.empty()):
             current_song = self.animeQueue.get()
             # play the song
@@ -119,9 +138,15 @@ class Amq(commands.Cog):
                 await self.music_player.stop_music(self.text_channel)
             await self._calculate_round_results(current_song)
         await self.end_game()
-            
+
 
     async def _calculate_round_results(self, current_song):
+        ''' (Amq, Song) -> None
+        Takes in the current song and calculates/updates the score based on the 
+        current song/player's guess. This method removes the stop words from the
+        titles in their respective languages and checks based on the exact name or
+        the guess based on words that are not stop words in the title
+        '''
         # check answers and reward points
         for players in self.participants:
             # only if the players tried to guess
@@ -169,6 +194,11 @@ class Amq(commands.Cog):
         await self.text_channel.send("The correct answer is: ", embed=temp_embed, delete_after=10)
 
     async def end_game(self):
+        ''' (Amq) -> None
+        This method removes the Guess and Search command because the game is
+        finished. It also prints an embedded discord message of the endgame 
+        scoreboard
+        '''
         # remove the commands
         self.bot.remove_cog("Amq")
         print("removed cog?")
@@ -182,6 +212,9 @@ class Amq(commands.Cog):
 
     @commands.command(aliases=['g'])
     async def guess(self, ctx, *guess):
+        ''' (Amq, discord.context, Str) -> None
+        Updates the players current guess
+        '''
         # combine the guess fragments together and get rid of spoilers
         search = ' '.join(guess).replace('|', '')
         for players in self.participants:
@@ -190,6 +223,11 @@ class Amq(commands.Cog):
 
     @commands.command(aliases=['s'])
     async def search(self, ctx, *anime):
+        ''' (Amq, discord.context, Str) -> None
+        DMs the user searching for the anime with results
+        of animes that have similar title in order to assist with
+        the guesses
+        '''
         search = ' '.join(anime).replace('|', '')
 
         res = await get_aniListAnime(search)
@@ -213,8 +251,10 @@ class Amq(commands.Cog):
         # with open(file_name, encoding="utf8") as f:
         lineList = [line.rstrip('\n').upper() for line in open(file_name, encoding="utf8")]
         return lineList
-            
+
 class Player():
+    ''' Player class with guess and score attribute for Amq
+    '''
     def __init__(self, id, name, mention, guess=None):
         self.score = 0
         self.id = id
@@ -224,6 +264,8 @@ class Player():
 
 
 class Song():
+    ''' Song class with details such as names,urls and desc
+    '''
     def __init__(self, english_name, name: set, picture_url: str, website_url: str, description: str):
         self.name = name
         self.english_name = english_name
@@ -232,6 +274,10 @@ class Song():
         self.description = description
 
 async def get_aniList(user):
+    ''' (str) -> Json obj
+    takes in a username off anilist and returns a json object with
+    of their animelists off anilist.co (for every list such as progress,completed)
+    '''
     query = query = '''
     query ($userName: String,$forceSingleCompletedList:Boolean) { 
       MediaListCollection (userName:$userName,type: ANIME,forceSingleCompletedList:$forceSingleCompletedList) {
@@ -270,6 +316,10 @@ async def get_aniList(user):
     return response
 
 async def get_aniListAnime(anime_name):
+    ''' (Str) -> JSON Obj
+    Takes in an anime name and returns a json object of 
+    10 results that might be related or IS the anime name being searched
+    '''
     query = query = '''
     query ($search: String) { 
   Page(page: 1, perPage: 10){
@@ -304,6 +354,10 @@ async def get_aniListAnime(anime_name):
 
     return response
 async def get_aniListAnime_single(anime_name):
+    ''' (Str) -> JSON Obj
+    Takes in an anime name and returns a json object of 
+    1 result that might be related or IS the anime name being searched
+    '''
     query = query = '''
     query ($search: String) { 
     Media (search:$search,type: ANIME) {
