@@ -3,16 +3,17 @@ Bot is currently under development (Unusable state)<br />
 <br />
 Currently working on:<br />
 <br />
-Anime music Quiz feature:<br />
+Game Status API feature:<br />
 Checklist:<br />
-✓ AniList imports based on user and combine feature without overlaps<br />
-✓ Ability to datascrape urls for op/end music videos<br />
-✓ Implementation of music player <br />
-✓ music player queue system<br />
-✓ Implmentation of guess<br />
-✓ Autocorrect/simiplify for guess<br />
-✓ point scoring system and starting/ending games. Settings for games<br />
-✓ optimization and userfeedback<br />
+X Ability to Login in certain games<br />
+X Ability to view stats from certain games<br />
+X Ability to view other people stats <br />
+X Ability to verify login for other members <br />
+X Have currency <br />
+X Ability to gain currency <br />
+
+
+
 
 
 # Discord Bot
