@@ -6,16 +6,25 @@ import sys
 import os
 import aiohttp
 from discord.ext import commands
+
+# music player
+import youtube_dl
+
 # adding the paths of the different modules in the different folders
-# sys.path.append('./GambleGames/')
+sys.path.append('./Games/')
+sys.path.append('./Music/')
+# Music player
+from MusicPlayer import MusicPlayer
+
+# AMQ imports
+from Amq import Amq
 
 # Setting global variables
 _command_prefix = '$'
+players = {}
 
 # create new discord bot obj
 client = commands.Bot(command_prefix=_command_prefix)
-
-
 
 # read the information for the api keys and put them in a dictionary
 _key_dict = None
@@ -46,9 +55,134 @@ async def set_messageInt(messageInitializer):
     global _messageInitializer
     _messageInitializer = messageInitializer
 
-@client.command(pass_context=True)
+@client.command()
 async def goodnight(ctx):
     await client.send_message(ctx.message.channel, "GoodNight!")
+
+@client.command()
+async def connect(ctx):
+    # get the voice channel of the author and connect to it
+    # if there is no voice channel then send an error message
+    author_voice = ctx.message.author.voice
+    if(author_voice == None):
+        temp_embed = discord.Embed()
+        temp_embed.color = 15158332
+        temp_embed.title = "Error"
+        temp_embed.description = "You are not currently in a voice channel"
+        await ctx.send(embed=temp_embed)
+    # if the bot is already in a voice channel
+    elif(ctx.guild.voice_client != None):
+        print("already in a voice channel")
+        # if the author of the message isn't already in the same voice channel
+        # as the bot
+        if(ctx.guild.voice_client.channel != author_voice.channel):
+            await ctx.guild.voice_client.disconnect()
+            await author_voice.channel.connect()
+    # connect the bot to a voice channel of the author
+    else:
+        await author_voice.channel.connect()
+        
+
+
+@client.command()
+async def disconnect(ctx):
+    # disconnect the bot from the voice if it is connected
+    if(ctx.guild.voice_client != None):
+        await ctx.guild.voice_client.disconnect()
+
+
+@client.command()
+async def close(ctx):
+    # embeded message to show that the bot is shut down
+    temp_embed = discord.Embed()
+    temp_embed.color = 3066993
+    temp_embed.title = "Closed"
+    temp_embed.description = "Bot has been successfully closed"
+    await ctx.send(embed=temp_embed)
+    # shut down the bot
+    await client.close()
+
+@client.command()
+async def play(ctx, *url):
+    search = ' '.join(url)
+    # if the bot doesnt exists in a voice channel then dont do anything
+    if(ctx.guild.voice_client != None):
+        # if the bot current has audio on then stop it
+        if(ctx.guild.voice_client.is_playing()):
+            ctx.guild.voice_client.stop()
+
+        audio_source = discord.FFmpegPCMAudio(await download("test_song",
+                                                             search))
+        ctx.guild.voice_client.play(audio_source)
+
+
+async def download(title, video_url):
+    outtmpl = '{}.%(ext)s'.format(title)
+
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'outtmpl': outtmpl,
+        'noplaylist': True,
+        'default_search': 'auto',
+        'postprocessors': [
+            {'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3',
+             'preferredquality': '192',
+             },
+            {'key': 'FFmpegMetadata'},
+        ],
+
+    }
+    # check if its a video or a search and get the temp
+    # streaming URL accordingly
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        data = ydl.extract_info(video_url, download=False)
+        print(data)
+        if(data.get('_type') != None):
+            if(data.get('entries') != None):
+                data = data.get('entries').pop(0)
+                # ydl.download([new_video_url])
+            else:
+                print("ERROR NO ATTRIBUTE ENTRIES")
+        url_list = data.get('formats')
+        data = url_list.pop(len(url_list) - 1)
+        data = data.get('url')
+    # return '{}.mp3'.format(title)
+    return data
+# global var b/c check function cant share vars with outter function
+options =0
+@client.command()
+async def game(ctx, game):
+    global options
+    if(game.upper() == "AMQ"):
+        channel = ctx.channel
+        # get info to start game
+        await channel.send('State number of rounds\nDefault: 20', delete_after=40)
+        def check(m):
+            global options
+            check_bool = True
+            options = m.content
+            # if the parameter they passed in isnt an integer then
+            # ignore it until they pass one in
+            try:
+                options = int(options)
+            except Exception:
+                check_bool = False
+            return check_bool and m.channel == channel
+
+        msg = await client.wait_for('message', check=check)
+
+        await channel.send('Starting Game', delete_after=10)
+        participants = ctx.guild.voice_client.channel.members
+        current_game = Amq(client, participants,
+                           ctx.message.channel, ctx.guild.voice_client,
+                           MusicPlayer(client), rounds=options, time_sec=35.0)
+        client.add_cog(current_game)
+        await current_game.set_up()
+        await current_game.play_game()
+        # remove cog after game finishes
+
+
+
 
 # Run the bot
 client.run(TOKEN)
