@@ -11,6 +11,10 @@ X Ability to view other people stats <br />
 X Ability to verify login for other members <br />
 X Have currency <br />
 X Ability to gain currency <br />
+X Ability to save and load data <br />
+X Ability to have unique data for each server <br />
+
+
 
 
 
