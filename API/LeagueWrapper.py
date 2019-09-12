@@ -1,4 +1,7 @@
 
+import aiohttp
+import asyncio
+
 class LeagueWrapper:
     def __init__(self, api_key):
         self.api_key = api_key
@@ -16,8 +19,8 @@ class LeagueWrapper:
         'wins'
         'losses'
         '''
-
-        name_url = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/{}'.format(summonername) + key
+        key = '?api_key={}'.format(self.api_key)
+        name_url = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/{}'.format(summoner_name) + key
         # get the encryted summ id
         async with aiohttp.ClientSession() as cs:
             async with cs.request('GET', name_url) as r:
@@ -25,7 +28,6 @@ class LeagueWrapper:
         encryted_sum_id = response.get('id')
         stats_url = 'https://na1.api.riotgames.com'
         stats_mid_url = '/lol/league/v4/entries/by-summoner/{}'.format(encryted_sum_id)
-        key = '?api_key={}'.format(self.api_key)
         stats_url = stats_url + stats_mid_url + key
         # get the stats
         async with aiohttp.ClientSession() as cs:
@@ -37,6 +39,7 @@ class LeagueWrapper:
     async def get_league_stats_champ(self, summoner_name):
         ''' 
         '''
+        key = '?api_key={}'.format(self.api_key)        
         name_url = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/{}'.format(summonername) + key
         # get the encryted summ id
         async with aiohttp.ClientSession() as cs:
@@ -45,7 +48,6 @@ class LeagueWrapper:
         encryted_sum_id = response.get('id')
         stats_url = 'https://na1.api.riotgames.com'
         stats_mid_url = '/lol/champion-mastery/v4/champion-masteries/by-summoner/{}'.format(encryted_sum_id)
-        key = '?api_key={}'.format(self.api_key)
         stats_url = stats_url + stats_mid_url + key
         # get the stats
         async with aiohttp.ClientSession() as cs:

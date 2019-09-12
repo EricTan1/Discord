@@ -41,21 +41,7 @@ except:
 # set the discord API key
 TOKEN = _key_dict["DISCORD"]
 
-# load up data if it exists if not then create new data
-_persona_dict = None
-PERSONA_PATH = "Data/persona.json"
-PERSONABACKUP_PATH = "Data/personabackup.json"
 
-try:
-    with open(PERSONA_PATH, 'r') as data:
-        _persona_dict = json.load(data)
-    # now save the info as "Backup"
-except:
-    print("empty/invalid json file for persona keys")
-    _persona_dict = dict()
-
-
-        
 @client.event
 async def on_ready():
     ''' () -> None
@@ -63,7 +49,27 @@ async def on_ready():
     the database in the local systems and using that information to create
     the linkedlist of persona objects.
     '''
+    global _key_dict
+    # load up data if it exists if not then create new data
+    _persona_dict = None
+    PERSONA_PATH = "Data/persona.json"
+    PERSONABACKUP_PATH = "Data/personabackup.json"
+    try:
+        with open(PERSONA_PATH, 'r') as data:
+            _persona_dict = json.load(data)
+        # now save the info as "Backup"
+        print("successful load")
+    except:
+        print("empty/invalid json file for persona keys")
+        _persona_dict = dict()
+    # setting up api
+    league_wrap = LeagueWrapper(_key_dict.get("LEAGUE"))
+    bah = BotApiHandler(client, _persona_dict, league_wrapper=league_wrap)
+    # adding the new commands
+    client.add_cog(bah)
     print("The bot is ready!")
+    
+
 
 async def set_messageInt(messageInitializer):
     ''' (str)->str
