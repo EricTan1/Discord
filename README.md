@@ -5,14 +5,14 @@ Currently working on:<br />
 <br />
 Game Status API feature:<br />
 Checklist:<br />
-X Ability to Login in certain games<br />
-X Ability to view stats from certain games<br />
+✓ Ability to Login in certain games<br />
+✓ Ability to view stats from certain games<br />
 X Ability to view other people stats <br />
-X Ability to verify login for other members <br />
-X Have currency <br />
+✓ Ability to verify login for other members <br />
+✓ Have currency <br />
 X Ability to gain currency <br />
-X Ability to save and load data <br />
-X Ability to have unique data for each server <br />
+✓ Ability to save and load data <br />
+✓ Ability to have unique data for each server <br />
 
 
 
