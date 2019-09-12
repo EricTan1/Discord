@@ -13,12 +13,16 @@ import youtube_dl
 # adding the paths of the different modules in the different folders
 sys.path.append('./Games/')
 sys.path.append('./Music/')
+sys.path.append('./API/')
+
+# Games imports
 # Music player
 from MusicPlayer import MusicPlayer
-
 # AMQ imports
 from Amq import Amq
-
+# API imports
+from BotApiHandler import BotApiHandler
+from LeagueWrapper import LeagueWrapper
 # Setting global variables
 _command_prefix = '$'
 players = {}
@@ -36,6 +40,19 @@ except:
     print("empty/invalid json file for api keys")
 # set the discord API key
 TOKEN = _key_dict["DISCORD"]
+
+# load up data if it exists if not then create new data
+_persona_dict = None
+PERSONA_PATH = "Data/persona.json"
+PERSONABACKUP_PATH = "Data/personabackup.json"
+
+try:
+    with open(PERSONA_PATH, 'r') as data:
+        _persona_dict = json.load(data)
+    # now save the info as "Backup"
+except:
+    print("empty/invalid json file for persona keys")
+    _persona_dict = dict()
 
 
         
@@ -102,54 +119,11 @@ async def close(ctx):
     # shut down the bot
     await client.close()
 
-@client.command()
-async def play(ctx, *url):
-    search = ' '.join(url)
-    # if the bot doesnt exists in a voice channel then dont do anything
-    if(ctx.guild.voice_client != None):
-        # if the bot current has audio on then stop it
-        if(ctx.guild.voice_client.is_playing()):
-            ctx.guild.voice_client.stop()
 
-        audio_source = discord.FFmpegPCMAudio(await download("test_song",
-                                                             search))
-        ctx.guild.voice_client.play(audio_source)
-
-
-async def download(title, video_url):
-    outtmpl = '{}.%(ext)s'.format(title)
-
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': outtmpl,
-        'noplaylist': True,
-        'default_search': 'auto',
-        'postprocessors': [
-            {'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3',
-             'preferredquality': '192',
-             },
-            {'key': 'FFmpegMetadata'},
-        ],
-
-    }
-    # check if its a video or a search and get the temp
-    # streaming URL accordingly
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        data = ydl.extract_info(video_url, download=False)
-        print(data)
-        if(data.get('_type') != None):
-            if(data.get('entries') != None):
-                data = data.get('entries').pop(0)
-                # ydl.download([new_video_url])
-            else:
-                print("ERROR NO ATTRIBUTE ENTRIES")
-        url_list = data.get('formats')
-        data = url_list.pop(len(url_list) - 1)
-        data = data.get('url')
-    # return '{}.mp3'.format(title)
-    return data
 # global var b/c check function cant share vars with outter function
-options =0
+options = 0
+
+
 @client.command()
 async def game(ctx, game):
     global options
@@ -157,6 +131,7 @@ async def game(ctx, game):
         channel = ctx.channel
         # get info to start game
         await channel.send('State number of rounds\nDefault: 20', delete_after=40)
+
         def check(m):
             global options
             check_bool = True
