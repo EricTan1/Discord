@@ -23,6 +23,7 @@ from Amq import Amq
 # API imports
 from BotApiHandler import BotApiHandler
 from LeagueWrapper import LeagueWrapper
+from OsuWrapper import OsuWrapper
 # Setting global variables
 _command_prefix = '$'
 players = {}
@@ -64,7 +65,8 @@ async def on_ready():
         _persona_dict = dict()
     # setting up api
     league_wrap = LeagueWrapper(_key_dict.get("LEAGUE"))
-    bah = BotApiHandler(client, _persona_dict, league_wrapper=league_wrap)
+    osu_wrap = OsuWrapper(_key_dict.get("OSU"))
+    bah = BotApiHandler(client, _persona_dict, league_wrapper=league_wrap, osu_wrapper=osu_wrap)
     # adding the new commands
     client.add_cog(bah)
     print("The bot is ready!")
