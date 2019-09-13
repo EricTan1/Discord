@@ -7,7 +7,7 @@ class LeagueWrapper:
         self.api_key = api_key
 
     async def get_league_stats_queue(self, summoner_name):
-        ''' (Str,Str) -> JSON Obj
+        ''' (LeagueWrapper,Str) -> JSON Obj
         Takes in a summoner name and returns a json obj
         List of queuetypes (dict)
         with keys:

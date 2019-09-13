@@ -8,6 +8,8 @@ import aiohttp
 from discord.ext import commands
 
 class BotApiHandler(commands.Cog):
+    '''
+    '''
     def __init__(self, bot, persona_dict, fortnite_wrapper=None,
                  osu_wrapper=None, league_wrapper=None):
         # {server:{discordid:{games:[list of games],score:int}}}
@@ -79,27 +81,36 @@ class BotApiHandler(commands.Cog):
 
 
     @commands.command(aliases=['stats'])
-    async def status(self, ctx, *person):
+    async def status(self, ctx, *person: discord.Member):
+        print(person)
+        # IS A TUPLE SO INDEX LIKE LIST
+        # Check if you are refering to yourself or another person
         if(len(person) == 0):
-            # check if server/profile exists
-            await self.setup_profile(ctx.guild.id, ctx.author.id)
-            # Creating the status message
-            temp_embed=discord.Embed()
-            temp_embed.title="{} Profile".format(ctx.message.author.name)
-            temp_embed.color=3066993
-            # loop through all the games
-            if(len(await self.get_games(ctx.guild.id, ctx.author.id)) != 0):
-                temp_embed.description = "Currency: ${}".format(await self.get_currency(ctx.guild.id, ctx.author.id))
-                for games in await self.get_games(ctx.guild.id, ctx.author.id):
-                    if(games.get("name") == "LEAGUE"):
-                        q_list=await self.league_wrapper.get_league_stats_queue(games.get("username"))
-                        print(q_list)
-                        stat_desc=await self.format_league_stats(q_list)
-                        temp_embed.add_field(name="League of Legends", value=stat_desc, inline="false")
-            else:
-                temp_embed.description = "Currency: ${}\nEmpty profile! Please check out the 'login' command".format(await self.get_currency(ctx.guild.id, ctx.author.id))
+            this_p = ctx.author
+        # if multiple people then first person
+        else:
+            this_p = person[0]
+        # check if server/profile exists
+        await self.setup_profile(ctx.guild.id, this_p.id)
+        # Creating the status message
+        temp_embed=discord.Embed()
+        temp_embed.title = "{} Profile".format(this_p.name)
+        temp_embed.color=3066993
+        # loop through all the games
+        if(len(await self.get_games(ctx.guild.id, this_p.id)) != 0):
+            temp_embed.description = "Currency: ${}".format(await self.get_currency(ctx.guild.id, this_p.id))
+            for games in await self.get_games(ctx.guild.id, this_p.id):
+                if(games.get("name") == "LEAGUE"):
+                    q_list=await self.league_wrapper.get_league_stats_queue(games.get("username"))
+                    print(q_list)
+                    stat_desc=await self.format_league_stats(q_list)
+                    temp_embed.add_field(name="League of Legends", value=stat_desc, inline="false")
+        else:
+            temp_embed.description = "Currency: ${}\nEmpty profile! Please check out the 'login' command".format(await self.get_currency(ctx.guild.id, this_p.id))
 
-            await ctx.send(embed=temp_embed)
+        await ctx.send(embed=temp_embed)        
+
+
 
     async def setup_profile(self, server_id, user_id):
         # check for profile if no profile to make basic and display
@@ -130,15 +141,15 @@ class BotApiHandler(commands.Cog):
         return self.persona_dict.get(str(server_id)).get(str(user_id)).get("games")
     
     async def format_league_stats(self, queue_list):
-        ''' (BotApiHandler, list of dict[json obj])-> Str or None
+        ''' (BotApiHandler, list of dict[json obj]) -> Str or None
         '''
         ret_stats = ""
         # check if the json file exists
         if(queue_list != None):
             # Loop through the queue types
             for queuetypes in queue_list:
-                ret_stats = ret_stats + queuetypes.get('queueType').replace("_", " ") + "\n"
-                ret_stats = ret_stats + "{} {} {} LP\n".format(queuetypes.get('tier'), queuetypes.get('rank'), queuetypes.get('leaguePoints'))
+                ret_stats = ret_stats + queuetypes.get('queueType').replace("_", " ").title() + "\n"
+                ret_stats = ret_stats + "{} {} {} LP\n".format(queuetypes.get('tier').title(), queuetypes.get('rank'), queuetypes.get('leaguePoints'))
                 ret_stats = ret_stats + "Wins: {} Loss: {}\n\n".format(queuetypes.get('wins'), queuetypes.get('losses'))
         else:
             ret_stats = None
