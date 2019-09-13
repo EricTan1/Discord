@@ -20,18 +20,20 @@ class OsuWrapper:
         "pp_country_rank"
         "mode" (0-4) for osu gamemodes
         '''
-        stats_url = 'https://osu.ppy.sh'        
+        stats_url_base = 'https://osu.ppy.sh'
         key = '&k={}'.format(self.api_key)
         ret_list = []
-        # Check all modes and check if pp_raw is none        
+        # Check all modes
         for index in range(4):
             stats_mid_url = '/api/get_user?u={}&m={}'.format(osu_name, index)
-            stats_url = stats_url + stats_mid_url + key
+            stats_url = stats_url_base + stats_mid_url + key
             # get the stats
             async with aiohttp.ClientSession() as cs:
                 async with cs.request('GET', stats_url) as r:
-                    response_stats = await r.json()  # returns dict
+                    response_stats = await r.json()
             game_info = response_stats[0]
+            print(game_info)
+            #  if pp_raw is none then player doesnt play gamemode. o/w add it
             if(game_info.get("pp_raw") != None):
                 game_info["mode"] = index
                 ret_list.append(response_stats[0])

@@ -21,7 +21,8 @@ class BotApiHandler(commands.Cog):
         
     @commands.command(aliases=['vl'])
     @commands.has_permissions(manage_channels=True)
-    async def verifylogin(self, ctx, game: str, member: discord.Member, username):
+    async def verifylogin(self, ctx, game: str, member: discord.Member, *username):
+        username = ' '.join(username)
         # check if server exists in dict
         await self.setup_profile(ctx.guild.id, member.id)
         if(game.upper() in ["LEAGUE", "LOL"] or game.upper() in ["OSU"]):
@@ -35,6 +36,8 @@ class BotApiHandler(commands.Cog):
                     # save the current number of wins
                     for queuetypes in stats:
                         count = count + queuetypes.get('wins')
+                    # to fix aliases problems
+                    game = "LEAGUE"
                 elif(game.upper() in ["OSU"]):
                     stats = await self.osu_wrapper.get_osu_stats(username)
                     # for the game we keep track of performance points (PP)
@@ -110,11 +113,11 @@ class BotApiHandler(commands.Cog):
         if(len(await self.get_games(ctx.guild.id, this_p.id)) != 0):
             temp_embed.description = "Currency: ${}".format(await self.get_currency(ctx.guild.id, this_p.id))
             for games in await self.get_games(ctx.guild.id, this_p.id):
-                if(games.get("name") == "LEAGUE"):
-                    q_list=await self.league_wrapper.get_league_stats_queue(games.get("username"))
+                if(games.get("name") in ["LEAGUE", "LOL"]):
+                    q_list = await self.league_wrapper.get_league_stats_queue(games.get("username"))
                     stat_desc = await self.format_league_stats(q_list)
                     temp_embed.add_field(name="League of Legends", value=stat_desc, inline="false")
-                elif(games.get("name") == "OSU"):
+                elif(games.get("name") in ["OSU"]):
                     mode_list = await self.osu_wrapper.get_osu_stats(games.get("username"))
                     stat_desc = await self.format_osu_stats(mode_list)
                     temp_embed.add_field(name="Osu", value=stat_desc, inline="false")
@@ -140,6 +143,10 @@ class BotApiHandler(commands.Cog):
     async def set_profile_game(self, server_id, user_id, game, username, count):
         person = self.persona_dict.get(str(server_id)).get(str(user_id))
         game_list = person.get("games")
+        # wanna check for if the game is already in the list. if it is then remove
+        for check_games in game_list:
+            if(check_games.get("name") == game):
+                game_list.remove(check_games)
         my_dict = dict()
         my_dict["name"] = game
         my_dict["username"] = username
