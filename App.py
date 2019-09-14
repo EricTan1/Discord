@@ -170,7 +170,7 @@ async def game(ctx, game):
             if(await bah.get_animelist(ctx.guild.id, people.id) != None):
                 anime_list.append(await bah.get_animelist(ctx.guild.id, people.id))
         if(len(anime_list) == 0):
-            await channel.send('No one has an anilist. Please log in to one via login command.\nDefault List: https://anilist.co/user/woahs/', delete_after=40)
+            await channel.send('No one is logged in to anilist. Please log in to one via login command\nPlaying with Default list\nDefault List: https://anilist.co/user/woahs/', delete_after=40)
             current_game = Amq(client, participants,
                                ctx.message.channel, ctx.guild.voice_client,
                                MusicPlayer(client), rounds=options, time_sec=35.0,
