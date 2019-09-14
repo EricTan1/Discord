@@ -32,9 +32,10 @@ class OsuWrapper:
                 async with cs.request('GET', stats_url) as r:
                     response_stats = await r.json()
             game_info = response_stats[0]
-            print(game_info)
+            # print(game_info)
             #  if pp_raw is none then player doesnt play gamemode. o/w add it
             if(game_info.get("pp_raw") != None):
                 game_info["mode"] = index
                 ret_list.append(response_stats[0])
+                print("w")
         return ret_list

@@ -11,12 +11,13 @@ class BotApiHandler(commands.Cog):
     '''
     '''
     def __init__(self, bot, persona_dict, fortnite_wrapper=None,
-                 osu_wrapper=None, league_wrapper=None):
+                 osu_wrapper=None, league_wrapper=None, anilist_wrapper=None):
         # {server:{discordid:{games:[list of games],score:int}}}
         self.persona_dict = persona_dict
         self.league_wrapper = league_wrapper
         self.osu_wrapper = osu_wrapper
         self.fortnite_wrapper = fortnite_wrapper
+        self.anilist_wrapper = anilist_wrapper
         print(persona_dict)
         
     @commands.command(aliases=['vl'])
@@ -79,17 +80,33 @@ class BotApiHandler(commands.Cog):
         file.close()
         print("Finished saving data\n")        
 
-    @commands.command(aliases=['l'])
+    @commands.command(aliases=['l', 'log'])
     async def login(self, ctx, game, user_name):
         # check if server/profile exists
         await self.setup_profile(ctx.guild.id, ctx.author.id)
-        if(game.upper() in ["anilist", "animelist"]):
-            pass
+        if(game.upper() in ["ANILIST", "ANIMELIST"]):
+            # check if its valid username (aka returns something)
+            # add it seperate from the list
+            res = await self.anilist_wrapper.get_aniList(user_name)
+            if(res.get("errors") == None):
+                t_dict = self.persona_dict.get(str(ctx.guild.id)).get(str(ctx.author.id))
+                t_dict["anilist"] = user_name
+                temp_embed = discord.Embed()
+                temp_embed.color = 3066993
+                temp_embed.title = "Success"
+                temp_embed.description = "Sucessfully logged in"
+                await ctx.send(embed=temp_embed)
+            else:
+                temp_embed = discord.Embed()
+                temp_embed.color = 15158332
+                temp_embed.title = "Error"
+                temp_embed.description = "Invalid username"
+                await ctx.send(embed=temp_embed)
         else:
             temp_embed = discord.Embed()
             temp_embed.color = 15158332
             temp_embed.title = "Error"
-            temp_embed.description = "Invalid game. Check the supported games"
+            temp_embed.description = "Invalid game. Check the supported non-verify games"
             await ctx.send(embed=temp_embed)        
         # if it doesnt create a new server and add the profile in
 
@@ -108,14 +125,19 @@ class BotApiHandler(commands.Cog):
         # Creating the status message
         temp_embed=discord.Embed()
         temp_embed.title = "{} Profile".format(this_p.name)
-        temp_embed.color=3066993
+        temp_embed.color = 3066993
+        ani_username = await self.get_animelist(ctx.guild.id, this_p.id)
+        if(ani_username != None):
+            res = await self.anilist_wrapper.get_user(ani_username)
+            res = res.get('data').get('User')
+            temp_embed.add_field(name="Anilist", value="[{}]({})".format(res.get('name'), res.get('siteUrl')), inline="false")
         # loop through all the games
         if(len(await self.get_games(ctx.guild.id, this_p.id)) != 0):
-            temp_embed.description = "Currency: ${}".format(await self.get_currency(ctx.guild.id, this_p.id))
+            temp_embed.description="Currency: ${}".format(await self.get_currency(ctx.guild.id, this_p.id))
             for games in await self.get_games(ctx.guild.id, this_p.id):
                 if(games.get("name") in ["LEAGUE", "LOL"]):
-                    q_list = await self.league_wrapper.get_league_stats_queue(games.get("username"))
-                    stat_desc = await self.format_league_stats(q_list)
+                    q_list=await self.league_wrapper.get_league_stats_queue(games.get("username"))
+                    stat_desc=await self.format_league_stats(q_list)
                     temp_embed.add_field(name="League of Legends", value=stat_desc, inline="false")
                 elif(games.get("name") in ["OSU"]):
                     mode_list = await self.osu_wrapper.get_osu_stats(games.get("username"))
@@ -158,6 +180,8 @@ class BotApiHandler(commands.Cog):
 
     async def get_games(self, server_id, user_id):
         return self.persona_dict.get(str(server_id)).get(str(user_id)).get("games")
+    async def get_animelist(self, server_id, user_id):
+        return self.persona_dict.get(str(server_id)).get(str(user_id)).get("anilist")
 
     async def format_league_stats(self, queue_list):
         ''' (BotApiHandler, list of dict[json obj]) -> Str

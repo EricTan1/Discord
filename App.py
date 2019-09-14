@@ -24,6 +24,7 @@ from Amq import Amq
 from BotApiHandler import BotApiHandler
 from LeagueWrapper import LeagueWrapper
 from OsuWrapper import OsuWrapper
+from AnilistWrapper import AnilistWrapper
 # Setting global variables
 _command_prefix = '$'
 players = {}
@@ -34,6 +35,7 @@ client = commands.Bot(command_prefix=_command_prefix)
 # read the information for the api keys and put them in a dictionary
 _key_dict = None
 KEY_PATH = "Data/keys.json"
+bah = None
 try:
     with open(KEY_PATH, 'r') as data:
         _key_dict = json.load(data)
@@ -51,6 +53,7 @@ async def on_ready():
     the linkedlist of persona objects.
     '''
     global _key_dict
+    global bah
     # load up data if it exists if not then create new data
     _persona_dict = None
     PERSONA_PATH = "Data/persona.json"
@@ -66,7 +69,10 @@ async def on_ready():
     # setting up api
     league_wrap = LeagueWrapper(_key_dict.get("LEAGUE"))
     osu_wrap = OsuWrapper(_key_dict.get("OSU"))
-    bah = BotApiHandler(client, _persona_dict, league_wrapper=league_wrap, osu_wrapper=osu_wrap)
+    anilist_wrap = AnilistWrapper("https://graphql.anilist.co/")
+    
+    bah = BotApiHandler(client, _persona_dict, league_wrapper=league_wrap,
+                        osu_wrapper=osu_wrap, anilist_wrapper=anilist_wrap)
     # adding the new commands
     client.add_cog(bah)
     print("The bot is ready!")
@@ -135,6 +141,7 @@ options = 0
 @client.command()
 async def game(ctx, game):
     global options
+    global bah
     if(game.upper() == "AMQ"):
         channel = ctx.channel
         # get info to start game
@@ -156,9 +163,24 @@ async def game(ctx, game):
 
         await channel.send('Starting Game', delete_after=10)
         participants = ctx.guild.voice_client.channel.members
-        current_game = Amq(client, participants,
-                           ctx.message.channel, ctx.guild.voice_client,
-                           MusicPlayer(client), rounds=options, time_sec=35.0)
+        anime_list = []
+        # loop thur all participants and get the animelist username
+        for people in participants:
+            await bah.setup_profile(ctx.guild.id, people.id)
+            if(await bah.get_animelist(ctx.guild.id, people.id) != None):
+                anime_list.append(await bah.get_animelist(ctx.guild.id, people.id))
+        if(len(anime_list) == 0):
+            await channel.send('No one has an anilist. Please log in to one via login command.\nDefault List: https://anilist.co/user/woahs/', delete_after=40)
+            current_game = Amq(client, participants,
+                               ctx.message.channel, ctx.guild.voice_client,
+                               MusicPlayer(client), rounds=options, time_sec=35.0,
+                               anilist_wrapper=AnilistWrapper("https://graphql.anilist.co/"))
+        else:
+            current_game = Amq(client, participants,
+                               ctx.message.channel, ctx.guild.voice_client,
+                               MusicPlayer(client), rounds=options, time_sec=35.0,
+                               anime_list=anime_list,
+                               anilist_wrapper=AnilistWrapper("https://graphql.anilist.co/"))
         client.add_cog(current_game)
         await current_game.set_up()
         await current_game.play_game()

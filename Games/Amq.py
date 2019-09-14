@@ -18,7 +18,7 @@ class Amq(commands.Cog):
     
     '''
 
-    def __init__(self, bot, participants, text_channel, voice_channel, music_player, rounds=20, time_sec=35.0, anime_list=['woahs']):
+    def __init__(self, bot, participants, text_channel, voice_channel, music_player, rounds=20, time_sec=35.0, anime_list=['woahs'], anilist_wrapper=None):
         ''' (Amq, discord.Client, List of user, int, double, List of Strings) -> Amq
         Takes in the discord.client obj
         Takes in list of discord.user obj
@@ -38,6 +38,7 @@ class Amq(commands.Cog):
         # index 0 = english, index 1 = romaji, index 2 = japanese
         self.stop_words = []
         self.participants = participants
+        print(anime_list)
 
 
     async def set_up(self):
