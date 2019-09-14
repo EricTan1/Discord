@@ -1,4 +1,4 @@
-Bot is currently under development (Unusable state)<br />
+Bot is currently under development (Not user friendly but usable)<br />
 
 <br />
 Currently working on:<br />
@@ -7,7 +7,7 @@ Game Status API feature:<br />
 Checklist:<br />
 ✓ Ability to Login in certain games<br />
 ✓ Ability to view stats from certain games<br />
-X Ability to view other people stats <br />
+✓ Ability to view other people stats <br />
 ✓ Ability to verify login for other members <br />
 ✓ Have currency <br />
 X Ability to gain currency <br />
