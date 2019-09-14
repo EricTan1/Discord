@@ -5,6 +5,8 @@ import json
 import sys
 import os
 import aiohttp
+from datetime import datetime
+from datetime import timedelta
 from discord.ext import commands
 
 class BotApiHandler(commands.Cog):
@@ -71,6 +73,9 @@ class BotApiHandler(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_channels=True)
     async def save(self, ctx):
+        await self.save_data()
+        
+    async def save_data(self):
         # path to write
         PERSONA_PATH = "Data/persona.json"
         # Get all the info from the linked list and save it
@@ -78,8 +83,8 @@ class BotApiHandler(commands.Cog):
         data = json.dumps(self.persona_dict)
         file.write(data)
         file.close()
-        print("Finished saving data\n")        
-
+        print("Finished saving data\n")
+        
     @commands.command(aliases=['l', 'log'])
     async def login(self, ctx, game, user_name):
         # check if server/profile exists
@@ -178,6 +183,16 @@ class BotApiHandler(commands.Cog):
     async def get_currency(self, server_id, user_id):
         return self.persona_dict.get(str(server_id)).get(str(user_id)).get("currency")
 
+    
+    async def add_currency(self, server_id, user_id, value: int):
+        temp = self.persona_dict.get(str(server_id)).get(str(user_id))["currency"]
+        self.persona_dict.get(str(server_id)).get(str(user_id))["currency"] = temp + value
+    
+    async def get_daily(self, server_id, user_id):
+        return self.persona_dict.get(str(server_id)).get(str(user_id)).get("daily")
+    async def set_daily(self, server_id, user_id, value):
+        self.persona_dict.get(str(server_id)).get(str(user_id))["daily"] = value
+
     async def get_games(self, server_id, user_id):
         return self.persona_dict.get(str(server_id)).get(str(user_id)).get("games")
     async def get_animelist(self, server_id, user_id):
@@ -237,3 +252,43 @@ class BotApiHandler(commands.Cog):
 
     async def get_persona_dict(self):
         return self.persona_dict
+
+    
+    @commands.command(aliases=['d'])
+    async def daily(self, ctx):
+        ''' (BotApiHandler,str) -> None
+        Daily command. Gives daily_money to the user.
+        20 hour interval for next daily.
+        '''
+        await self.setup_profile(ctx.guild.id, ctx.author.id)
+        # declaring variables and values
+        multipler = 1
+        daily_money = 200
+        # in hours
+        time_diff = 20
+        # return value
+        ret = -1
+        # getting the daily timer
+        dailyTimer = await self.get_daily(ctx.guild.id, ctx.author.id)
+        # turn the string into a dateTime obj if it exists
+        if(dailyTimer != None):
+            datetime_object = datetime.strptime(dailyTimer, '%b %d %Y %I:%M%p')
+        now = datetime.now()
+        # check if its been 20 hours or no daily has been ever claimed yet
+        if ((dailyTimer == None) or (not (now - timedelta(hours=time_diff) <= datetime_object <= now + timedelta(hours=time_diff)))):
+            # if it has then add to the balance
+            # set the new dateTime
+            temp_now = now + + timedelta(hours=time_diff)
+            await self.set_daily(ctx.guild.id, ctx.author.id, now.strftime("%b %d %Y %I:%M%p"))
+            await self.add_currency(ctx.guild.id, ctx.author.id, daily_money)
+            await ctx.send("Daily claim successful next daily in {}".format(temp_now.strftime("%b %d %Y %I:%M%p")))
+
+        # get the time needed
+        else:
+            temp_date = datetime_object + timedelta(hours=time_diff)
+
+            ret = temp_date.strftime("%b %d %Y %I:%M%p")
+            await ctx.send("Next daily in {}".format(ret))
+
+
+        print(self.persona_dict)

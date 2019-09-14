@@ -124,6 +124,9 @@ async def disconnect(ctx):
 
 @client.command()
 async def close(ctx):
+    global bah
+    # save the personalist before closing
+    await bah.save_data()
     # embeded message to show that the bot is shut down
     temp_embed = discord.Embed()
     temp_embed.color = 3066993
