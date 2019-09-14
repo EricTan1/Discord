@@ -14,6 +14,10 @@ class BotApiHandler(commands.Cog):
     '''
     def __init__(self, bot, persona_dict, fortnite_wrapper=None,
                  osu_wrapper=None, league_wrapper=None, anilist_wrapper=None):
+        ''' (BotApiHandler, discord.client,dict,ForniteWrapper,OsuWrapper,
+        LeagueWrapper, AnilistWrapper) -> BotApiHandler
+        init method for BotApiHandler
+        '''
         # {server:{discordid:{games:[list of games],score:int}}}
         self.persona_dict = persona_dict
         self.league_wrapper = league_wrapper
@@ -25,6 +29,10 @@ class BotApiHandler(commands.Cog):
     @commands.command(aliases=['vl'])
     @commands.has_permissions(manage_channels=True)
     async def verifylogin(self, ctx, game: str, member: discord.Member, *username):
+        ''' (BotApiHandler, discord.context,str,discord.member,str) -> None
+        Logins in for a different user. Admin perms required to verify the person
+        logging in
+        '''
         username = ' '.join(username)
         # check if server exists in dict
         await self.setup_profile(ctx.guild.id, member.id)
@@ -73,9 +81,15 @@ class BotApiHandler(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_channels=True)
     async def save(self, ctx):
+        ''' (BotApiHandler, discord.context) -> None
+        Saves persona_dict
+        '''
         await self.save_data()
         
     async def save_data(self):
+        ''' (BotApiHandler) -> None
+        Saves persona_dict
+        '''
         # path to write
         PERSONA_PATH = "Data/persona.json"
         # Get all the info from the linked list and save it
@@ -87,6 +101,9 @@ class BotApiHandler(commands.Cog):
         
     @commands.command(aliases=['l', 'log'])
     async def login(self, ctx, game, user_name):
+        ''' (BotApiHandler, discord.context,str,str) -> None
+        Adds the username of the user for that game in the persona_dict
+        '''
         # check if server/profile exists
         await self.setup_profile(ctx.guild.id, ctx.author.id)
         if(game.upper() in ["ANILIST", "ANIMELIST"]):
@@ -118,6 +135,10 @@ class BotApiHandler(commands.Cog):
 
     @commands.command(aliases=['stats'])
     async def status(self, ctx, *person: discord.Member):
+        ''' (BotApiHandler, discord.context,discord.Member) -> None
+        checks the status of the current user if no one was mentioned
+        shows the games and currency
+        '''
         # IS A TUPLE SO INDEX LIKE LIST
         # Check if you are refering to yourself or another person
         if(len(person) == 0):
@@ -156,6 +177,9 @@ class BotApiHandler(commands.Cog):
 
 
     async def setup_profile(self, server_id, user_id):
+        ''' (BotApiHandler, str/int,str/int) -> None
+        adds the user to the persona list if user_id isnt already in it
+        '''
         # check for profile if no profile to make basic and display
         if(self.persona_dict.get(str(server_id)) == None):
             self.persona_dict[str(server_id)]=dict()
@@ -168,6 +192,9 @@ class BotApiHandler(commands.Cog):
             user_dict["games"] = []
             
     async def set_profile_game(self, server_id, user_id, game, username, count):
+        ''' (BotApiHandler, str/int,str/int,str,str,int) -> None
+        adds the game for user_id to the game list
+        '''
         person = self.persona_dict.get(str(server_id)).get(str(user_id))
         game_list = person.get("games")
         # wanna check for if the game is already in the list. if it is then remove
@@ -269,6 +296,9 @@ class BotApiHandler(commands.Cog):
         pass
 
     async def get_persona_dict(self):
+        ''' (BotApiHandler) -> dict
+        returns the persona dict
+        '''
         return self.persona_dict
 
     
