@@ -24,9 +24,9 @@ X Ability to gain currency <br />
 
 An interactive discord bot that has a currency system based on your gaming performance. It keeps track of your wins/gains in your favorite games such as: <br />
 ✓ OSU<br />
-✓ FORTNITE<br />
+X FORTNITE<br />
 ✓ LEAGUE<br />
-X TFT<br />
+✓ TFT<br />
 X OVERWATCH<br />
 X CS:GO<br />
 X DOTA2<br />
@@ -47,7 +47,6 @@ ex:<br />
 
 <b>Dependancies: </b><br />
 Discord python API<br />
-Flask<br />
 League API<br />
 Osu API <br />
 ```
@@ -66,8 +65,8 @@ Not avaliable yet
 ## Built With
 
 * [DiscordPy](https://discordpy.readthedocs.io/en/latest/api.html) - The bot API used
+* [DiscordPy Voice](https://discordpy.readthedocs.io/en/latest/api.html) - for Amq
 * [Flask](https://github.com/pallets/flask) - python web framework for oauth2
-* [Osu-Api](https://github.com/ppy/osu-api/wiki) - used to gather information about osu
 * [youtube_dl](https://github.com/ytdl-org/youtube-dl) - used to download music
 * [ffmpeg](https://www.ffmpeg.org/) - used to play music
 
