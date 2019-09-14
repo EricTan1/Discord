@@ -181,21 +181,39 @@ class BotApiHandler(commands.Cog):
         game_list.append(my_dict)
 
     async def get_currency(self, server_id, user_id):
+        ''' (BotApiHandler, str/int,str/int) -> int
+        fetches the currency for user_id
+        '''
         return self.persona_dict.get(str(server_id)).get(str(user_id)).get("currency")
 
     
     async def add_currency(self, server_id, user_id, value: int):
+        ''' (BotApiHandler, str/int,str/int,int) -> None
+        increments the user_id currency by value
+        '''
         temp = self.persona_dict.get(str(server_id)).get(str(user_id))["currency"]
         self.persona_dict.get(str(server_id)).get(str(user_id))["currency"] = temp + value
     
     async def get_daily(self, server_id, user_id):
+        ''' (BotApiHandler, str/int,str/int) -> None
+        gets the daily time of last used daily
+        '''
         return self.persona_dict.get(str(server_id)).get(str(user_id)).get("daily")
     async def set_daily(self, server_id, user_id, value):
+        ''' (BotApiHandler, str/int,str/int,str) -> None
+        sets the daily time of last used daily
+        '''
         self.persona_dict.get(str(server_id)).get(str(user_id))["daily"] = value
 
     async def get_games(self, server_id, user_id):
+        ''' (BotApiHandler, str/int,str/int) -> List of dict
+        fetches the game list for user_id
+        '''
         return self.persona_dict.get(str(server_id)).get(str(user_id)).get("games")
     async def get_animelist(self, server_id, user_id):
+        ''' (BotApiHandler, str/int,str/int) -> str
+        fetches the anime list for user_id
+        '''
         return self.persona_dict.get(str(server_id)).get(str(user_id)).get("anilist")
 
     async def format_league_stats(self, queue_list):
