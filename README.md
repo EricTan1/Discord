@@ -3,21 +3,12 @@ Bot is currently under development (Not user friendly but usable)<br />
 <br />
 Currently working on:<br />
 <br />
-Game Status API feature:<br />
-Checklist:<br />
-✓ Ability to Login in certain games<br />
-✓ Ability to view stats from certain games<br />
-✓ Ability to view other people stats <br />
-✓ Ability to verify login for other members <br />
-✓ Have currency <br />
-✓ Ability to gain currency <br />
-✓ Ability to save and load data <br />
-✓ Ability to have unique data for each server <br />
-
-
-
-
-
+Help Command and User friendlyness? <br />
+X able to view the list of avaliable commands with restriction <br />
+X able to view help for a specific command for a more in depth explaination with default/suggest values<br />
+X able to view avaliable new commands when a cog is added <br />
+X introduction/get started with the bot <br />
+<br />
 
 
 # Discord Bot
