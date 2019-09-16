@@ -18,7 +18,7 @@ class Amq(commands.Cog):
     
     '''
 
-    def __init__(self, bot, participants, text_channel, voice_channel, music_player, rounds=20, time_sec=35.0, anime_list=['woahs']):
+    def __init__(self, bot, participants, text_channel, voice_channel, music_player, rounds=20, time_sec=35.0, anime_list=['woahs'], anilist_wrapper=None):
         ''' (Amq, discord.Client, List of user, int, double, List of Strings) -> Amq
         Takes in the discord.client obj
         Takes in list of discord.user obj
@@ -38,6 +38,8 @@ class Amq(commands.Cog):
         # index 0 = english, index 1 = romaji, index 2 = japanese
         self.stop_words = []
         self.participants = participants
+        self.anilist_wrapper = anilist_wrapper
+        print(anime_list)
 
 
     async def set_up(self):
@@ -63,7 +65,7 @@ class Amq(commands.Cog):
             # import AniList
             second_list = []
             # based on user
-            response = await get_aniList(self.anime_list[index])
+            response = await self.anilist_wrapper.get_aniList(self.anime_list[index])
 
             # response = requests.post(url, json={'query': query, 'variables': variables})
             list_data=response.get("data").get("MediaListCollection").get('lists')
@@ -85,7 +87,7 @@ class Amq(commands.Cog):
         for x in range(self.rounds):
                 song_name = self.aniList_personal.pop(randrange(len(self.aniList_personal) - 1))
                 if(song_name != None):
-                    res = await get_aniListAnime_single(song_name)
+                    res = await self.anilist_wrapper.get_aniListAnime_single(song_name)
                     anime_data = res.get("data").get("Media")
                     name_types = []
                     name_types.append(anime_data.get('title').get('english'))
@@ -112,7 +114,7 @@ class Amq(commands.Cog):
                 audio_source = discord.FFmpegPCMAudio(self.music_player.download("test_song", current_song.english_name.replace(':', ' ') + " opening tv size"))
                 try:
                     await self.music_player.play_music(audio_source, self.text_channel, self.voice_channel)
-                except Exception:
+                except:
                     await self.text_channel.send("Error in getting URL", delete_after=5)
                     continue
                 await self.text_channel.send("Playing Song", delete_after=5)
@@ -230,7 +232,7 @@ class Amq(commands.Cog):
         '''
         search = ' '.join(anime).replace('|', '')
 
-        res = await get_aniListAnime(search)
+        res = await self.anilist_wrapper.get_aniListAnime(search)
         # if there is a response
         print(res)
         if(res != None or res.get("data") != None):
@@ -272,120 +274,3 @@ class Song():
         self.picture_url = picture_url
         self.website_url = website_url
         self.description = description
-
-async def get_aniList(user):
-    ''' (str) -> Json obj
-    takes in a username off anilist and returns a json object with
-    of their animelists off anilist.co (for every list such as progress,completed)
-    '''
-    query = query = '''
-    query ($userName: String,$forceSingleCompletedList:Boolean) { 
-      MediaListCollection (userName:$userName,type: ANIME,forceSingleCompletedList:$forceSingleCompletedList) {
-        lists{
-            name
-            entries{
-                media{
-                    siteUrl
-                    coverImage{
-                        medium
-                    }
-                    title{
-                        english
-                        romaji
-                        native
-                    }
-                }
-            }
-        }
-      }
-    }
-    '''
-
-    variables = {
-        'userName': user,
-        'forceSingleCompletedList': True
-    }
-
-    url = 'https://graphql.anilist.co/'
-    ret = []
-    async with aiohttp.ClientSession() as cs:
-        async with cs.request('POST', url, json={'query': query,
-                                                 'variables': variables}) as r:
-            response = await r.json()  # returns dict
-
-    return response
-
-async def get_aniListAnime(anime_name):
-    ''' (Str) -> JSON Obj
-    Takes in an anime name and returns a json object of 
-    10 results that might be related or IS the anime name being searched
-    '''
-    query = query = '''
-    query ($search: String) { 
-  Page(page: 1, perPage: 10){
-    media (search:$search,type: ANIME) {
-      bannerImage
-      siteUrl
-      tags{
-        description
-      }
-      coverImage{
-        medium
-      }
-    title{
-        english
-        romaji
-        native
-    }
-}
-    }
-  }
-    '''
-    variables = {
-        'search': anime_name,
-    }
-
-    url = 'https://graphql.anilist.co/'
-    ret = []
-    async with aiohttp.ClientSession() as cs:
-        async with cs.request('POST', url, json={'query': query,
-                                                 'variables': variables}) as r:
-            response = await r.json()  # returns dict
-
-    return response
-async def get_aniListAnime_single(anime_name):
-    ''' (Str) -> JSON Obj
-    Takes in an anime name and returns a json object of 
-    1 result that might be related or IS the anime name being searched
-    '''
-    query = query = '''
-    query ($search: String) { 
-    Media (search:$search,type: ANIME) {
-      bannerImage
-      siteUrl
-      tags{
-        description
-      }
-      coverImage{
-        medium
-      }
-    title{
-        english
-        romaji
-        native
-    }
-    }
-  }
-    '''
-    variables = {
-        'search': anime_name,
-    }
-
-    url = 'https://graphql.anilist.co/'
-    ret = []
-    async with aiohttp.ClientSession() as cs:
-        async with cs.request('POST', url, json={'query': query,
-                                                 'variables': variables}) as r:
-            response = await r.json()  # returns dict
-
-    return response
