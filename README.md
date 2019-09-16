@@ -10,7 +10,7 @@ Checklist:<br />
 ✓ Ability to view other people stats <br />
 ✓ Ability to verify login for other members <br />
 ✓ Have currency <br />
-X Ability to gain currency <br />
+✓ Ability to gain currency <br />
 ✓ Ability to save and load data <br />
 ✓ Ability to have unique data for each server <br />
 
