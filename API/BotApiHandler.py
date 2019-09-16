@@ -130,7 +130,6 @@ class BotApiHandler(commands.Cog):
             temp_embed.title = "Error"
             temp_embed.description = "Invalid game. Check the supported non-verify games"
             await ctx.send(embed=temp_embed)        
-        # if it doesnt create a new server and add the profile in
 
 
     @commands.command(aliases=['stats'])
@@ -159,25 +158,55 @@ class BotApiHandler(commands.Cog):
             temp_embed.add_field(name="Anilist", value="[{}]({})".format(res.get('name'), res.get('siteUrl')), inline="false")
         # loop through all the games
         if(len(await self.get_games(ctx.guild.id, this_p.id)) != 0):
-            temp_embed.description="Currency: ${}".format(await self.get_currency(ctx.guild.id, this_p.id))
             for games in await self.get_games(ctx.guild.id, this_p.id):
+                (diff, n_wins) = await self.update_score(games.get("name"), games.get("username"), games.get("wins"))
+                multi = 1
+                print("DIFF: " + str(diff) + "n_wins: " + str(n_wins))
                 if(games.get("name") in ["LEAGUE", "LOL"]):
                     q_list=await self.league_wrapper.get_league_stats_queue(games.get("username"))
                     stat_desc=await self.format_league_stats(q_list)
                     temp_embed.add_field(name="League of Legends", value=stat_desc, inline="false")
+                    multi = 10
                 elif(games.get("name") in ["OSU"]):
                     mode_list = await self.osu_wrapper.get_osu_stats(games.get("username"))
                     stat_desc = await self.format_osu_stats(mode_list)
                     temp_embed.add_field(name="Osu", value=stat_desc, inline="false")
+                    multi = 0.5
+                games["wins"] = n_wins
+                await self.add_currency(ctx.guild.id, this_p.id, diff, multi)
+            temp_embed.description = "Currency: ${}".format(await self.get_currency(ctx.guild.id, this_p.id))
         else:
             temp_embed.description = "Currency: ${}\nEmpty profile! Please check out the 'login' command".format(await self.get_currency(ctx.guild.id, this_p.id))
 
-        await ctx.send(embed=temp_embed)        
+        await ctx.send(embed=temp_embed)
+        
+    async def update_score(self, game, username, curr_wins):
+        ''' (BitApiHandler, str, int) -> (int,int)
+        returns the difference between the new and the old
+        '''
+        ret = 0
+        count = 0        
+        if(game.upper() in ["LEAGUE", "LOL"]):
+            stats = await self.league_wrapper.get_league_stats_queue(username)
+            # for this game we keep track of wins
+            # save the current number of wins
+            for queuetypes in stats:
+                count = count + queuetypes.get('wins')
+        elif(game.upper() in ["OSU"]):
+            stats = await self.osu_wrapper.get_osu_stats(username)
+            # for the game we keep track of performance points (PP)
+            # go through all the osu game modes and add the pp
+            for gamemodes in stats:
+                count = count + int(float(gamemodes.get("pp_raw")))
 
-
+        ret = count - int(float(curr_wins))
+        # somehow user has negative wins (not possible) then ret 0
+        if(ret < 0):
+            ret = 0
+        return (ret, count)
 
     async def setup_profile(self, server_id, user_id):
-        ''' (BotApiHandler, str/int,str/int) -> None
+        ''' (BotApiHandler, str / int, str / int) -> None
         adds the user to the persona list if user_id isnt already in it
         '''
         # check for profile if no profile to make basic and display
@@ -190,7 +219,7 @@ class BotApiHandler(commands.Cog):
             user_dict=server_dict.get(str(user_id))
             user_dict["currency"]=0
             user_dict["games"] = []
-            
+
     async def set_profile_game(self, server_id, user_id, game, username, count):
         ''' (BotApiHandler, str/int,str/int,str,str,int) -> None
         adds the game for user_id to the game list
@@ -214,12 +243,12 @@ class BotApiHandler(commands.Cog):
         return self.persona_dict.get(str(server_id)).get(str(user_id)).get("currency")
 
     
-    async def add_currency(self, server_id, user_id, value: int):
-        ''' (BotApiHandler, str/int,str/int,int) -> None
+    async def add_currency(self, server_id, user_id, value: int, muiltplier):
+        ''' (BotApiHandler, str/int,str/int,int,int or float) -> None
         increments the user_id currency by value
         '''
         temp = self.persona_dict.get(str(server_id)).get(str(user_id))["currency"]
-        self.persona_dict.get(str(server_id)).get(str(user_id))["currency"] = temp + value
+        self.persona_dict.get(str(server_id)).get(str(user_id))["currency"] = temp + value * muiltplier
     
     async def get_daily(self, server_id, user_id):
         ''' (BotApiHandler, str/int,str/int) -> None
@@ -328,7 +357,7 @@ class BotApiHandler(commands.Cog):
             # set the new dateTime
             temp_now = now + + timedelta(hours=time_diff)
             await self.set_daily(ctx.guild.id, ctx.author.id, now.strftime("%b %d %Y %I:%M%p"))
-            await self.add_currency(ctx.guild.id, ctx.author.id, daily_money)
+            await self.add_currency(ctx.guild.id, ctx.author.id, daily_money, 1)
             await ctx.send("Daily claim successful next daily in {}".format(temp_now.strftime("%b %d %Y %I:%M%p")))
 
         # get the time needed
