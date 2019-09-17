@@ -1,0 +1,11 @@
+<command_prefix>help <commandName>
+Aliases: h, man, manual
+given a commandname return the manual of the command. check out commandlist for a list of commands
+
+Example: 
+<command_prefix>help login
+
+Returns to Author's textchannel
+
+Results:
+<Insert login manual here>

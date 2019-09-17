@@ -1,0 +1,13 @@
+<command_prefix>login <game> <username>
+Aliases: l, log
+games: [anilist]
+Given a game from the game list above enter a username for that game to log them in.
+anilist is used for amq feature
+
+Example: 
+<command_prefix>login anilist anilist_username
+
+Returns to author's TextChannel
+
+Results:
+Successful login or login error

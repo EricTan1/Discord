@@ -14,6 +14,8 @@ import youtube_dl
 sys.path.append('./Games/')
 sys.path.append('./Music/')
 sys.path.append('./API/')
+sys.path.append('./Help/')
+
 
 # Games imports
 # Music player
@@ -25,12 +27,14 @@ from BotApiHandler import BotApiHandler
 from LeagueWrapper import LeagueWrapper
 from OsuWrapper import OsuWrapper
 from AnilistWrapper import AnilistWrapper
+# Help imports
+from HelpHandler import HelpHandler
 # Setting global variables
 _command_prefix = '$'
 players = {}
 
 # create new discord bot obj
-client = commands.Bot(command_prefix=_command_prefix)
+client = commands.Bot(command_prefix=_command_prefix, help_command=None)
 
 # read the information for the api keys and put them in a dictionary
 _key_dict = None
@@ -73,8 +77,12 @@ async def on_ready():
     
     bah = BotApiHandler(client, _persona_dict, league_wrapper=league_wrap,
                         osu_wrapper=osu_wrap, anilist_wrapper=anilist_wrap)
+    # setting up help
+    hh = HelpHandler(client)
     # adding the new commands
     client.add_cog(bah)
+    client.add_cog(hh)
+    
     print("The bot is ready!")
     
 
@@ -86,9 +94,6 @@ async def set_messageInt(messageInitializer):
     global _messageInitializer
     _messageInitializer = messageInitializer
 
-@client.command()
-async def goodnight(ctx):
-    await client.send_message(ctx.message.channel, "GoodNight!")
 
 @client.command()
 async def connect(ctx):

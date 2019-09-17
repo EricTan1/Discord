@@ -1,0 +1,13 @@
+<command_prefix>search <Anime title>
+Aliases: s
+Searches top 10 results from anilist for animes with similiar names
+
+Example: 
+<command_prefix>Search Metal or s Metal
+
+Returns to author's DM
+
+Results:
+Metal panic
+Full metal alchemist
+etc

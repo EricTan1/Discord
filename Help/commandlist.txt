@@ -1,0 +1,15 @@
+connect
+commandlist
+daily
+disconnect
+game
+help
+login
+save
+status
+tutorial
+verifyLogin
+
+Only avaliable to AMQ:
+guess
+search

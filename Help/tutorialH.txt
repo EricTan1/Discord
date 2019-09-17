@@ -1,0 +1,9 @@
+<command_prefix>tutorial 
+Aliases: getstarted tut
+Shows a very basic summary and tutorial of the bot
+
+Example: 
+<command_prefix>tutorial
+
+Returns (TextChannel):
+

@@ -1,0 +1,9 @@
+Welcome to Eric's Bot!
+
+Eric's bot is an interactive gaming bot that keeps track of stats for popular games you may play!
+login your account and gain currency when you gain a win or points (verifylogin command or login command)
+view your status (status command)
+
+The bot also has support for a voicechannel+textchannel Anime music quiz feature! (game command)
+
+Check out the help command for an indepth guide of each command or commandlist for other commands!
