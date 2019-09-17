@@ -1,11 +1,11 @@
-guess <anime guess>
+<command_prefix>guess <anime guess>
 Aliases: g
 Guess command for the amq game. Suggest using spoilers for the game.
 How to use spoilers:
 https://support.discordapp.com/hc/en-us/articles/360022320632-Spoiler-Tags-
 
 Example: 
-guess ||anime guess||
+<command_prefix>guess ||anime guess||
 
 Returns to Author's textchannel
 

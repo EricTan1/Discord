@@ -1,0 +1,6 @@
+<command_prefix>disconnect
+Aliases:
+Disconnects the bot from the voice channel
+
+Example: 
+<command_prefix>disconnect

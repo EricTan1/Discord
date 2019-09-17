@@ -1,10 +1,10 @@
-game <gamelist>
+<command_prefix>game <gamelist>
 Aliases:
 gamelist: Amq (Anime music quiz)
 Starts up a game via discord textchannel
 
 Example: 
-game amq
+<command_prefix>game amq
 
 Returns to Author's textchannel
 

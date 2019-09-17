@@ -1,9 +1,9 @@
-status <Optional:mention>
+<command_prefix>status <Optional:mention>
 Aliases: stats
 Shows the status of the author of the message if there is no mention
 
 Example: 
-Status @Eric#1234 or s @Eric#1234
+<command_prefix>Status @Eric#1234 or s @Eric#1234
 
 Returns to author's TextChannel
 

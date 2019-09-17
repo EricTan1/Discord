@@ -1,9 +1,9 @@
-save
+<command_prefix>save
 Aliases:
 saves the information about logged in and currency gained
 
 Example: 
-save
+<command_prefix>save
 
 Returns to Console of host
 

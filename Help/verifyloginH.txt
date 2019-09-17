@@ -1,10 +1,10 @@
-verifylogin <game> <mention> <username>
+<command_prefix>verifylogin <game> <mention> <username>
 Aliases: vl
 games: [league,lol] or [osu]
 Given a game from the game list above mention a user and their username for that game to log them in.
 
 Example: 
-verifylogin lol @Eric#1234 LeagueUserName
+<command_prefix>verifylogin lol @Eric#1234 LeagueUserName
 
 Returns to author's TextChannel
 

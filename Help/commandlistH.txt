@@ -1,0 +1,13 @@
+<command_prefix>commandlist
+Aliases: clist, commands
+Gives a list of all the commands that is avaliable to the bot
+
+Example: 
+<command_prefix>commandlist
+
+Returns to author's DM
+
+Results:
+Help
+Daily
+etc..

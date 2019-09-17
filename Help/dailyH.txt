@@ -1,0 +1,11 @@
+<command_prefix>daily
+Aliases: d
+Adds 200$ to the author's currency, 20 hour interval for next daily
+
+Example: 
+<command_prefix>daily
+
+Returns to author's TextChannel
+
+Results:
+"Daily claim successful next daily in <Time>" or "Next daily in <Time>"

@@ -1,9 +1,9 @@
-tutorial 
-Aliases: getstarted gstarted tut
+<command_prefix>tutorial 
+Aliases: getstarted tut
 Shows a very basic summary and tutorial of the bot
 
 Example: 
-tutorial
+<command_prefix>tutorial
 
 Returns (TextChannel):
 
