@@ -3,11 +3,7 @@ Bot is currently under development (Not user friendly but usable)<br />
 <br />
 Currently working on:<br />
 <br />
-Help Command and User friendlyness? <br />
-X able to view the list of avaliable commands with restriction <br />
-X able to view help for a specific command for a more in depth explaination with default/suggest values<br />
-X able to view avaliable new commands when a cog is added <br />
-X introduction/get started with the bot <br />
+Usability and asethics and thinking about ways to spend currency <br />
 <br />
 
 
