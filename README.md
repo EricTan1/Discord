@@ -1,4 +1,4 @@
-Bot is currently under development (Not user friendly but usable)<br />
+Bot is currently under development<br />
 
 <br />
 Currently working on:<br />
@@ -21,41 +21,40 @@ X DOTA2<br />
 
 ## Getting Started
 
+* You will need python 3.6+
+* Windows OS
+
+### Prerequisites
+
+<b>Dependancies: </b><br />
+* [DiscordPy](https://discordpy.readthedocs.io/en/latest/api.html) - The bot API used
+* [DiscordPy Voice](https://discordpy.readthedocs.io/en/latest/api.html) - for Amq
+* [youtube_dl](https://github.com/ytdl-org/youtube-dl) - used to download music
+* [ffmpeg](https://www.ffmpeg.org/) - used to play music
+
+
+### Installing
+
 You will need API keys for your discord bot to support various games and the bot itself. <br />
 The folder must be in a directory called Data that exists from the root of the project. <br />
 ./Data/keys.json<br />
 A json file of key_type:key<br />
 ex:<br />
 {"DISCORD":"discord_api_key","SOMEGAME":"somegame_key"}<br />
+<br />
+You need to set up ffmpeg, tutorial here if you haven't set it up already:<br />
+[ffmpeg tutorial](https://video.stackexchange.com/questions/20495/how-do-i-set-up-and-use-ffmpeg-in-windows)<br />
+<br />
+After this you should be set! If you have any questions,concerns or bugs; please dm me on discord at Eric#5731<br />
 
+## How to use
 
-
-### Prerequisites
-
-<b>Dependancies: </b><br />
-Discord python API<br />
-League API<br />
-Osu API <br />
-```
-Give examples
-```
-
-### Installing
-
-Not avaliable yet
-
-
-## Deployment
-
-Not avaliable yet
+* Add your discord bot to your discord server
+* After you are done following the installing guide just run App.py and you are done!
 
 ## Built With
+*[Python](https://www.python.org/)
 
-* [DiscordPy](https://discordpy.readthedocs.io/en/latest/api.html) - The bot API used
-* [DiscordPy Voice](https://discordpy.readthedocs.io/en/latest/api.html) - for Amq
-* [Flask](https://github.com/pallets/flask) - python web framework for oauth2
-* [youtube_dl](https://github.com/ytdl-org/youtube-dl) - used to download music
-* [ffmpeg](https://www.ffmpeg.org/) - used to play music
 
 ## Versioning
 
