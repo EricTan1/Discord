@@ -1,0 +1,9 @@
+tutorial 
+Aliases: getstarted gstarted tut
+Shows a very basic summary and tutorial of the bot
+
+Example: 
+tutorial
+
+Returns (TextChannel):
+

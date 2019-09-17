@@ -1,0 +1,13 @@
+status <Optional:mention>
+Aliases: stats
+Shows the status of the author of the message if there is no mention
+
+Example: 
+Status @Eric#1234 or s @Eric#1234
+
+Returns to author's TextChannel
+
+Results:
+Eric's Profile
+Currency:$0
+Games info

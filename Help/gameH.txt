@@ -1,0 +1,12 @@
+game <gamelist>
+Aliases:
+gamelist: Amq (Anime music quiz)
+Starts up a game via discord textchannel
+
+Example: 
+game amq
+
+Returns to Author's textchannel
+
+Results:
+<Starts up Amq>

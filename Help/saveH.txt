@@ -1,0 +1,11 @@
+save
+Aliases:
+saves the information about logged in and currency gained
+
+Example: 
+save
+
+Returns to Console of host
+
+Results:
+successful save

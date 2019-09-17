@@ -1,0 +1,11 @@
+help <commandName>
+Aliases: h
+given a commandname return the manual of the command
+
+Example: 
+help login
+
+Returns to Author's textchannel
+
+Results:
+<Insert login manual here>
