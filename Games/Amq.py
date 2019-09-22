@@ -39,7 +39,6 @@ class Amq(commands.Cog):
         self.stop_words = []
         self.participants = participants
         self.anilist_wrapper = anilist_wrapper
-        print(anime_list)
 
 
     async def set_up(self):
@@ -70,7 +69,6 @@ class Amq(commands.Cog):
             # response = requests.post(url, json={'query': query, 'variables': variables})
             list_data=response.get("data").get("MediaListCollection").get('lists')
 
-
             for ani_lists in list_data:
                 for anime in ani_lists.get("entries"):
                     second_list.append(anime.get("media").get("title").get("english"))
@@ -84,7 +82,10 @@ class Amq(commands.Cog):
         self.aniList_personal = anime_list
         # RANDO ANIME CHOOSING CODE HERE
         self.animeQueue = Queue(self.rounds)
-        for x in range(self.rounds):
+        rangelimit = self.rounds
+        if(len(self.aniList_personal) < self.rounds):
+            rangelimit = len(self.aniList_personal)
+        for x in range(rangelimit):
                 song_name = self.aniList_personal.pop(randrange(len(self.aniList_personal) - 1))
                 if(song_name != None):
                     res = await self.anilist_wrapper.get_aniListAnime_single(song_name)
@@ -118,11 +119,10 @@ class Amq(commands.Cog):
                     await self.text_channel.send("Error in getting URL", delete_after=5)
                     continue
                 await self.text_channel.send("Playing Song", delete_after=5)
-                print(current_song.english_name)
 
-            channel=self.text_channel
+            channel = self.text_channel
 
-            msg = await channel.send('Send me that \U0001f44e reaction, to skip', delete_after=self.time_per_song)
+            msg = await channel.send('Send me that \U0001f44e reaction, to skip\nEveryone participating needs to react in order to skip.', delete_after=self.time_per_song)
             await msg.add_reaction('\U0001f44e')
 
             def check(reaction, user):
@@ -166,7 +166,6 @@ class Amq(commands.Cog):
                         title_name = current_song.name[index].upper().replace(':', '').split(' ')
                         # remove stop words from title
                         in_first = set(self.stop_words[index])
-                        # print(in_first)
                         in_second = set(title_name)
                         phrase = in_second - in_first
 
@@ -192,7 +191,7 @@ class Amq(commands.Cog):
         temp_embed.color=3900661
         temp_embed.url=current_song.website_url
         temp_embed.set_image(url=current_song.picture_url)
-        temp_embed.description=current_song.description
+        temp_embed.description = current_song.description
         await self.text_channel.send("The correct answer is: ", embed=temp_embed, delete_after=10)
 
     async def end_game(self):
@@ -203,13 +202,13 @@ class Amq(commands.Cog):
         '''
         # remove the commands
         self.bot.remove_cog("Amq")
-        print("removed cog?")
         # send answer
-        temp_embed=discord.Embed()
+        temp_embed = discord.Embed()
         temp_embed.title="Anime Music Quiz Results"
         temp_embed.color=4652906
         for players in self.participants:
-            temp_embed.add_field(name=players.name, value="Score: " + str(players.score), inline="false")
+            if(players.id != self.bot.user.id):
+                temp_embed.add_field(name=players.name, value="Score: " + str(players.score), inline="false")
         await self.text_channel.send(embed=temp_embed)
 
     @commands.command(aliases=['g'])
@@ -234,7 +233,6 @@ class Amq(commands.Cog):
 
         res = await self.anilist_wrapper.get_aniListAnime(search)
         # if there is a response
-        print(res)
         if(res != None or res.get("data") != None):
             anime_data = res.get("data").get("Page")
             anime_data = anime_data.get("media")

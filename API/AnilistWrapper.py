@@ -43,7 +43,6 @@ class AnilistWrapper:
             async with cs.request('POST', self.base_url, json={'query': query,
                                                      'variables': variables}) as r:
                 response = await r.json()  # returns dict
-
         return response
     async def get_aniListAnime(self, anime_name):
         ''' (Str) -> JSON Obj
@@ -93,9 +92,7 @@ class AnilistWrapper:
         Media (search:$search,type: ANIME) {
           bannerImage
           siteUrl
-          tags{
-            description
-          }
+          description
           coverImage{
             medium
           }

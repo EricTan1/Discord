@@ -17,6 +17,7 @@ class HelpHandler(commands.Cog):
     async def help(self, ctx, *command):
         command = ' '.join(command)
         temp_embed = discord.Embed()
+        temp_prefix = await self.bot.get_prefix(ctx.message) 
         # if there is specific command to help then
         if (len(command) != 0):
             try:
@@ -25,7 +26,7 @@ class HelpHandler(commands.Cog):
                 contents = f.read()
                 temp_embed.color = 16408551
                 temp_embed.title = command.lower() + " help"
-                temp_embed.description = contents
+                temp_embed.description = contents.replace('<command_prefix>', temp_prefix)
                 await ctx.send(embed=temp_embed)
             except:
                 temp_embed.color = 15158332
@@ -35,7 +36,7 @@ class HelpHandler(commands.Cog):
         else:
                 temp_embed.color = 16408551
                 temp_embed.title = "Help introduction"
-                temp_embed.description = "Check out '<command_prefix> commandlist' for list of commands and '<command_prefix>help help' on how to use the help command"
+                temp_embed.description = "Check out '<command_prefix>commandlist' for list of commands and '<command_prefix>help help' on how to use the help command".replace('<command_prefix>', temp_prefix)
                 await ctx.send(embed=temp_embed)
 
 

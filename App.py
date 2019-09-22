@@ -168,8 +168,8 @@ async def game(ctx, game):
             return check_bool and m.channel == channel
 
         msg = await client.wait_for('message', check=check)
-
-        await channel.send('Starting Game', delete_after=10)
+        temp_prefix = await client.get_prefix(ctx.message)
+        await channel.send('Starting Game, please use the guess and search command.\nIf you are unsure on how to use the guess and search command then please use: <command_prefix>search or <command_prefix>guess'.replace('<command_prefix>', temp_prefix), delete_after=30)
         participants = ctx.guild.voice_client.channel.members
         anime_list = []
         # loop thur all participants and get the animelist username

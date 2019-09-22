@@ -24,6 +24,7 @@ class BotApiHandler(commands.Cog):
         self.osu_wrapper = osu_wrapper
         self.fortnite_wrapper = fortnite_wrapper
         self.anilist_wrapper = anilist_wrapper
+        self.bot = bot
         print(persona_dict)
         
     @commands.command(aliases=['vl'])
@@ -132,60 +133,13 @@ class BotApiHandler(commands.Cog):
             await ctx.send(embed=temp_embed)        
 
 
-    @commands.command(aliases=['stats'])
-    async def status(self, ctx, *person: discord.Member):
-        ''' (BotApiHandler, discord.context,discord.Member) -> None
-        checks the status of the current user if no one was mentioned
-        shows the games and currency
-        '''
-        # IS A TUPLE SO INDEX LIKE LIST
-        # Check if you are refering to yourself or another person
-        if(len(person) == 0):
-            this_p = ctx.author
-        # if multiple people then first person
-        else:
-            this_p = person[0]
-        # check if server/profile exists
-        await self.setup_profile(ctx.guild.id, this_p.id)
-        # Creating the status message
-        temp_embed=discord.Embed()
-        temp_embed.title = "{} Profile".format(this_p.name)
-        temp_embed.color = 3066993
-        ani_username = await self.get_animelist(ctx.guild.id, this_p.id)
-        if(ani_username != None):
-            res = await self.anilist_wrapper.get_user(ani_username)
-            res = res.get('data').get('User')
-            temp_embed.add_field(name="Anilist", value="[{}]({})".format(res.get('name'), res.get('siteUrl')), inline="false")
-        # loop through all the games
-        if(len(await self.get_games(ctx.guild.id, this_p.id)) != 0):
-            for games in await self.get_games(ctx.guild.id, this_p.id):
-                (diff, n_wins) = await self.update_score(games.get("name"), games.get("username"), games.get("wins"))
-                multi = 1
-                print("DIFF: " + str(diff) + "n_wins: " + str(n_wins))
-                if(games.get("name") in ["LEAGUE", "LOL"]):
-                    q_list=await self.league_wrapper.get_league_stats_queue(games.get("username"))
-                    stat_desc=await self.format_league_stats(q_list)
-                    temp_embed.add_field(name="League of Legends", value=stat_desc, inline="false")
-                    multi = 10
-                elif(games.get("name") in ["OSU"]):
-                    mode_list = await self.osu_wrapper.get_osu_stats(games.get("username"))
-                    stat_desc = await self.format_osu_stats(mode_list)
-                    temp_embed.add_field(name="Osu", value=stat_desc, inline="false")
-                    multi = 0.5
-                games["wins"] = n_wins
-                await self.add_currency(ctx.guild.id, this_p.id, diff, multi)
-            temp_embed.description = "Currency: ${}".format(await self.get_currency(ctx.guild.id, this_p.id))
-        else:
-            temp_embed.description = "Currency: ${}\nEmpty profile! Please check out the 'login' command".format(await self.get_currency(ctx.guild.id, this_p.id))
 
-        await ctx.send(embed=temp_embed)
-        
     async def update_score(self, game, username, curr_wins):
         ''' (BitApiHandler, str, int) -> (int,int)
         returns the difference between the new and the old
         '''
         ret = 0
-        count = 0        
+        count = 0
         if(game.upper() in ["LEAGUE", "LOL"]):
             stats = await self.league_wrapper.get_league_stats_queue(username)
             # for this game we keep track of wins
@@ -205,6 +159,127 @@ class BotApiHandler(commands.Cog):
             ret = 0
         return (ret, count)
 
+    @commands.command(aliases=['stats'])
+    async def status(self, ctx, *person: discord.Member):
+        # init dict for message
+        game_desc = dict()
+        # field index counter
+        field_count = 0
+        # Check if you are refering to yourself or another person
+        if(len(person) == 0):
+            this_p = ctx.author
+        # if multiple people then first person
+        else:
+            this_p = person[0]
+        # check if server/profile exists
+        await self.setup_profile(ctx.guild.id, this_p.id)
+        # Creating the status message
+        temp_embed = discord.Embed()
+        temp_embed.title = "{} Profile".format(this_p.name)
+        temp_embed.color = 3066993
+        # anilist is one liner so it doesnt really clog up space. Add it
+        ani_username = await self.get_animelist(ctx.guild.id, this_p.id)
+        if(ani_username != None):
+            res = await self.anilist_wrapper.get_user(ani_username)
+            res = res.get('data').get('User')
+            temp_embed.add_field(name="Anilist", value="[{}]({})".format(res.get('name'), res.get('siteUrl')), inline="false")
+            field_count = field_count + 1
+        tut_desc = "To check game profiles react with the following emoji's\n\U0001f1f1 for League\n\U0001f1f4 for Osu"
+        # loop through all the games
+        for games in await self.get_games(ctx.guild.id, this_p.id):
+            (diff, n_wins) = await self.update_score(games.get("name"), games.get("username"), games.get("wins"))
+            multi = 1
+            print("DIFF: " + str(diff) + "n_wins: " + str(n_wins))
+            if(games.get("name") in ["LEAGUE", "LOL"]):
+                q_list=await self.league_wrapper.get_league_stats_queue(games.get("username"))
+                stat_desc=await self.format_league_stats(q_list)
+                #temp_embed.add_field(name="League of Legends", value=stat_desc, inline="false")
+                multi = 10
+            elif(games.get("name") in ["OSU"]):
+                mode_list = await self.osu_wrapper.get_osu_stats(games.get("username"))
+                stat_desc = await self.format_osu_stats(mode_list)
+                #temp_embed.add_field(name="Osu", value=stat_desc, inline="false")
+                multi = 0.5
+            games["wins"] = n_wins
+            await self.add_currency(ctx.guild.id, this_p.id, diff, multi)
+            # setting up entry
+            game_desc[games.get("name")] = dict()
+            new_dict = game_desc.get(games.get("name"))
+
+            new_dict["desc"] = stat_desc
+
+        temp_embed.description = "Currency: ${}\n".format(await self.get_currency(ctx.guild.id, this_p.id)) + tut_desc
+        msg = await ctx.channel.send(embed=temp_embed)
+        # for League
+        await msg.add_reaction('\U0001f1f1')
+        # for Osu
+        await msg.add_reaction('\U0001f1f4')
+
+
+    
+        # For toggling which stats
+        while(True):
+            def check(reaction, user):
+                # check each reaction and do something accordingly
+                # if league
+                if(str(reaction.emoji) == '\U0001f1f1'):
+                    if(game_desc["LEAGUE"] == None):
+                        set_up_game(game_desc, "LEAGUE")
+                # if osu
+                elif(str(reaction.emoji) == '\U0001f1f4'):
+                    if(game_desc["OSU"] == None):
+                        set_up_game(game_desc, "OSU")
+                print("checking")
+                return (str(reaction) == '\U0001f1f1' or str(reaction) == '\U0001f1f4') and reaction.count >1
+
+            def set_up_game(game_dict, game):
+                game_desc[game] = dict()
+                new_dict = game_desc.get(game)
+                new_dict["desc"] = "The user hasn't logged in to this game yet"
+            # discord.on_reaction_remove(reaction, user)
+
+            try:
+                reaction, user = await self.bot.wait_for('reaction_add',
+                                                         timeout=30,
+                                                         check=check)
+            except:
+                print("status timed out")
+                temp_embed.color = 15158332
+                await msg.edit(embed=temp_embed)
+                break
+            else:
+                print(game_desc)
+                if(str(reaction) == '\U0001f1f1'):
+                    game_name = "League of Legends"
+                    stats_desc = game_desc.get("LEAGUE")
+                if(str(reaction) == '\U0001f1f4'):
+                    game_name = "Osu"
+                    stats_desc = game_desc.get("OSU")
+                if(stats_desc.get("queue") == None):
+                    print("adding field")
+                    stats_desc["queue"] = field_count
+                    field_count = field_count + 1
+                    temp_embed.add_field(name=game_name,
+                                         value=stats_desc.get("desc"),
+                                         inline="false")
+                else:
+                    print("removing field")
+                    # remove the field
+                    field_count = field_count - 1
+                    temp_queue = stats_desc.get("queue")
+                    temp_embed.remove_field(temp_queue)
+                    stats_desc["queue"] = None
+                    # fix all the queue index
+                    for game_dict in game_desc:
+                        curr_queue = game_desc.get(game_dict).get("queue")
+                        if(curr_queue != None):
+                            if(curr_queue > temp_queue):
+                                game_desc.get(game_dict)["queue"] = curr_queue-1
+                print("GAME DESC BEING ADDED: " + game_name)
+                await msg.edit(embed=temp_embed)
+        print("Done status")
+
+
     async def setup_profile(self, server_id, user_id):
         ''' (BotApiHandler, str / int, str / int) -> None
         adds the user to the persona list if user_id isnt already in it
@@ -218,22 +293,22 @@ class BotApiHandler(commands.Cog):
             server_dict[str(user_id)]=dict()
             user_dict=server_dict.get(str(user_id))
             user_dict["currency"]=0
-            user_dict["games"] = []
+            user_dict["games"]=[]
 
     async def set_profile_game(self, server_id, user_id, game, username, count):
         ''' (BotApiHandler, str/int,str/int,str,str,int) -> None
         adds the game for user_id to the game list
         '''
-        person = self.persona_dict.get(str(server_id)).get(str(user_id))
-        game_list = person.get("games")
+        person=self.persona_dict.get(str(server_id)).get(str(user_id))
+        game_list=person.get("games")
         # wanna check for if the game is already in the list. if it is then remove
         for check_games in game_list:
             if(check_games.get("name") == game):
                 game_list.remove(check_games)
-        my_dict = dict()
-        my_dict["name"] = game
-        my_dict["username"] = username
-        my_dict["wins"] = count
+        my_dict=dict()
+        my_dict["name"]=game
+        my_dict["username"]=username
+        my_dict["wins"]=count
         game_list.append(my_dict)
 
     async def get_currency(self, server_id, user_id):
