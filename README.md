@@ -4,6 +4,8 @@ Bot is currently under development<br />
 Currently working on:<br />
 <br />
 Usability and asethics and thinking about ways to spend currency <br />
+Adding more games<br />
+Host bot on external site to support oauth2 for more games <br />
 <br />
 
 
