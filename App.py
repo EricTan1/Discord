@@ -95,7 +95,7 @@ async def set_messageInt(messageInitializer):
     _messageInitializer = messageInitializer
 
 
-@client.command()
+# @client.command()
 async def connect(ctx):
     # get the voice channel of the author and connect to it
     # if there is no voice channel then send an error message
@@ -126,7 +126,7 @@ async def disconnect(ctx):
     if(ctx.guild.voice_client != None):
         await ctx.guild.voice_client.disconnect()
 
-
+@commands.has_permissions(manage_channels=True)
 @client.command()
 async def close(ctx):
     global bah
@@ -151,9 +151,12 @@ async def game(ctx, game):
     global options
     global bah
     if(game.upper() == "AMQ"):
+        await channel.send('Make sure you are in a VoiceChannel', delete_after=40)
+        
+        await connect(ctx)        
         channel = ctx.channel
         # get info to start game
-        await channel.send('State number of rounds\nDefault: 20', delete_after=40)
+        await channel.send('State number of rounds\nDefault: 20 (Just type the number in the chat)', delete_after=40)
 
         def check(m):
             global options

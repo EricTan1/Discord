@@ -1,6 +1,0 @@
-<command_prefix>connect
-Aliases:
-Connects the bot from the voice channel
-
-Example: 
-<command_prefix>Connect

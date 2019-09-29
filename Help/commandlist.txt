@@ -1,4 +1,3 @@
-connect
 commandlist
 daily
 disconnect

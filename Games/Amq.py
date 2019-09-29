@@ -193,6 +193,14 @@ class Amq(commands.Cog):
         temp_embed.set_image(url=current_song.picture_url)
         temp_embed.description = current_song.description
         await self.text_channel.send("The correct answer is: ", embed=temp_embed, delete_after=10)
+        # send answer
+        temp_embed2 = discord.Embed()
+        temp_embed2.title = "Anime Music Quiz Results"
+        temp_embed2.color = 4652906
+        for players in self.participants:
+            if(players.id != self.bot.user.id):
+                temp_embed.add_field(name=players.name, value="Score: " + str(players.score), inline="false")
+        await self.text_channel.send(embed=temp_embed2, delete_after=10)
 
     async def end_game(self):
         ''' (Amq) -> None
@@ -200,6 +208,12 @@ class Amq(commands.Cog):
         finished. It also prints an embedded discord message of the endgame 
         scoreboard
         '''
+        # disconnect the bot from VC
+        guild_list = self.bot.guilds
+        for guild in guild_list:
+            if(guild.id == self.text_channel.guild.id):
+                if(guild.voice_client != None):
+                    await guild.voice_client.disconnect()
         # remove the commands
         self.bot.remove_cog("Amq")
         # send answer
