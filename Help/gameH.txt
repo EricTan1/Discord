@@ -1,6 +1,7 @@
-<command_prefix>game <gamelist>
+<command_prefix>game <game>
 Aliases:
-gamelist: Amq (Anime music quiz)
+gamelist: Amq
+Amq: Anime music quiz
 Starts up a game via discord textchannel
 
 Example: 

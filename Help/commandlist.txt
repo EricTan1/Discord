@@ -1,13 +1,13 @@
-commandlist
-daily
-disconnect
-game
-help
-login
-save
-status
 tutorial
-verifyLogin
+status <OPTIONAL: mention>
+daily
+login <game> <in game username>
+game <game>
+help <command>
+commandlist
+
+For mod/admin use only: (manage channel permissions)
+verifyLogin <game> <mention> <in game username>
 
 Only avaliable to AMQ:
 guess

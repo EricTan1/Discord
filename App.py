@@ -151,52 +151,64 @@ async def game(ctx, game):
     global options
     global bah
     if(game.upper() == "AMQ"):
-        await channel.send('Make sure you are in a VoiceChannel', delete_after=40)
-        
-        await connect(ctx)        
-        channel = ctx.channel
-        # get info to start game
-        await channel.send('State number of rounds\nDefault: 20 (Just type the number in the chat)', delete_after=40)
-
-        def check(m):
-            global options
-            check_bool = True
-            options = m.content
-            # if the parameter they passed in isnt an integer then
-            # ignore it until they pass one in
-            try:
-                options = int(options)
-            except Exception:
-                check_bool = False
-            return check_bool and m.channel == channel
-
-        msg = await client.wait_for('message', check=check)
-        temp_prefix = await client.get_prefix(ctx.message)
-        await channel.send('Starting Game, please use the guess and search command.\nIf you are unsure on how to use the guess and search command then please use: <command_prefix>search or <command_prefix>guess'.replace('<command_prefix>', temp_prefix), delete_after=30)
-        participants = ctx.guild.voice_client.channel.members
-        anime_list = []
-        # loop thur all participants and get the animelist username
-        for people in participants:
-            await bah.setup_profile(ctx.guild.id, people.id)
-            if(await bah.get_animelist(ctx.guild.id, people.id) != None):
-                anime_list.append(await bah.get_animelist(ctx.guild.id, people.id))
-        if(len(anime_list) == 0):
-            await channel.send('No one is logged in to anilist. Please log in to one via login command\nPlaying with Default list\nDefault List: https://anilist.co/user/woahs/', delete_after=40)
-            current_game = Amq(client, participants,
-                               ctx.message.channel, ctx.guild.voice_client,
-                               MusicPlayer(client), rounds=options, time_sec=35.0,
-                               anilist_wrapper=AnilistWrapper("https://graphql.anilist.co/"))
+        try:
+            await connect(ctx)
+        except:
+            await ctx.send("You need to be in a voice channel to play AMQ or the bot is unable to connect to your voice channel")
         else:
-            current_game = Amq(client, participants,
-                               ctx.message.channel, ctx.guild.voice_client,
-                               MusicPlayer(client), rounds=options, time_sec=35.0,
-                               anime_list=anime_list,
-                               anilist_wrapper=AnilistWrapper("https://graphql.anilist.co/"))
-        client.add_cog(current_game)
-        await current_game.set_up()
-        await current_game.play_game()
-        # remove cog after game finishes
+            channel = ctx.channel
+            # get info to start game
+            await channel.send('State number of rounds\nDefault: 20 (Just type the number in the chat)', delete_after=40)
 
+            def check(m):
+                global options
+                check_bool = True
+                options = m.content
+                # if the parameter they passed in isnt an integer then
+                # ignore it until they pass one in
+                try:
+                    options = int(options)
+                except Exception:
+                    check_bool = False
+                return check_bool and m.channel == channel
+
+            msg = await client.wait_for('message', check=check)
+            temp_prefix = await client.get_prefix(ctx.message)
+            await channel.send('Starting Game, please use the guess and search command.\nIf you are unsure on how to use the guess and search command then please use: <command_prefix>search or <command_prefix>guess'.replace('<command_prefix>', temp_prefix), delete_after=30)
+            participants = ctx.guild.voice_client.channel.members
+            anime_list = []
+            # loop thur all participants and get the animelist username
+            for people in participants:
+                await bah.setup_profile(ctx.guild.id, people.id)
+                if(await bah.get_animelist(ctx.guild.id, people.id) != None):
+                    anime_list.append(await bah.get_animelist(ctx.guild.id, people.id))
+            if(len(anime_list) == 0):
+                await channel.send('No one is logged in to anilist. Please log in to one via login command\nPlaying with Default list\nDefault List: https://anilist.co/user/woahs/', delete_after=40)
+                current_game = Amq(client, participants,
+                                   ctx.message.channel, ctx.guild.voice_client,
+                                   MusicPlayer(client), rounds=options, time_sec=35.0,
+                                   anilist_wrapper=AnilistWrapper("https://graphql.anilist.co/"))
+            else:
+                current_game = Amq(client, participants,
+                                   ctx.message.channel, ctx.guild.voice_client,
+                                   MusicPlayer(client), rounds=options, time_sec=35.0,
+                                   anime_list=anime_list,
+                                   anilist_wrapper=AnilistWrapper("https://graphql.anilist.co/"))
+            client.add_cog(current_game)
+            await current_game.set_up()
+            await current_game.play_game()
+
+@game.error
+async def status_error(ctx, error):
+    temp_embed = discord.Embed()
+    temp_embed.color = 15158332
+    temp_embed.title = "Error"    
+    if isinstance(error, commands.UserInputError):
+        temp_embed.description = 'Invalid parameters check out {}help {}'.format(ctx.prefix, str(ctx.command))
+        await ctx.send(embed=temp_embed)
+    elif isinstance(error, commands.CommandError):
+        temp_embed.description = 'No support for multi amq yet (Sorry will be added soon)'
+        await ctx.send(embed=temp_embed)
 
 
 

@@ -444,3 +444,27 @@ class BotApiHandler(commands.Cog):
 
 
         print(self.persona_dict)
+    @verifylogin.error
+    async def verifylogin_error(self, ctx, error):
+        if isinstance(error, commands.UserInputError):
+            temp_embed = discord.Embed()
+            temp_embed.color = 15158332
+            temp_embed.title = "Error"
+            temp_embed.description = 'Invalid parameters check out {}help {}'.format(ctx.prefix, str(ctx.command))
+            await ctx.send(embed=temp_embed)
+    @login.error
+    async def login_error(self, ctx, error):
+        if isinstance(error, commands.UserInputError):
+            temp_embed = discord.Embed()
+            temp_embed.color = 15158332
+            temp_embed.title = "Error"
+            temp_embed.description = 'Invalid parameters check out {}help {}'.format(ctx.prefix, str(ctx.command))
+            await ctx.send(embed=temp_embed)
+    @status.error
+    async def status_error(self, ctx, error):
+        if isinstance(error, commands.UserInputError):
+            temp_embed = discord.Embed()
+            temp_embed.color = 15158332
+            temp_embed.title = "Error"
+            temp_embed.description = 'Invalid discord member mention'
+            await ctx.send(embed=temp_embed)
