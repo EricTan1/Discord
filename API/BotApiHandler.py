@@ -42,7 +42,7 @@ class BotApiHandler(commands.Cog):
             # check if its valid profile first
             try:
                 if(game.upper() in ["LEAGUE", "LOL"]):
-                    stats = await self.league_wrapper.get_league_stats_queue(username)
+                    stats = await self.league_wrapper.get_game_stats(username)
                     # for this game we keep track of wins
                     count = 0
                     # save the current number of wins
@@ -51,7 +51,7 @@ class BotApiHandler(commands.Cog):
                     # to fix aliases problems
                     game = "LEAGUE"
                 elif(game.upper() in ["OSU"]):
-                    stats = await self.osu_wrapper.get_osu_stats(username)
+                    stats = await self.osu_wrapper.get_game_stats(username)
                     # for the game we keep track of performance points (PP)
                     # go through all the osu game modes and add the pp
                     count = 0
@@ -141,13 +141,13 @@ class BotApiHandler(commands.Cog):
         ret = 0
         count = 0
         if(game.upper() in ["LEAGUE", "LOL"]):
-            stats = await self.league_wrapper.get_league_stats_queue(username)
+            stats = await self.league_wrapper.get_game_stats(username)
             # for this game we keep track of wins
             # save the current number of wins
             for queuetypes in stats:
                 count = count + queuetypes.get('wins')
         elif(game.upper() in ["OSU"]):
-            stats = await self.osu_wrapper.get_osu_stats(username)
+            stats = await self.osu_wrapper.get_game_stats(username)
             # for the game we keep track of performance points (PP)
             # go through all the osu game modes and add the pp
             for gamemodes in stats:
@@ -191,12 +191,12 @@ class BotApiHandler(commands.Cog):
             multi = 1
             print("DIFF: " + str(diff) + "n_wins: " + str(n_wins))
             if(games.get("name") in ["LEAGUE", "LOL"]):
-                q_list=await self.league_wrapper.get_league_stats_queue(games.get("username"))
+                q_list = await self.league_wrapper.get_game_stats(games.get("username"))
                 stat_desc=await self.format_league_stats(q_list)
                 #temp_embed.add_field(name="League of Legends", value=stat_desc, inline="false")
                 multi = 10
             elif(games.get("name") in ["OSU"]):
-                mode_list = await self.osu_wrapper.get_osu_stats(games.get("username"))
+                mode_list = await self.osu_wrapper.get_game_stats(games.get("username"))
                 stat_desc = await self.format_osu_stats(mode_list)
                 #temp_embed.add_field(name="Osu", value=stat_desc, inline="false")
                 multi = 0.5
@@ -220,61 +220,56 @@ class BotApiHandler(commands.Cog):
         # For toggling which stats
         while(True):
             def check(reaction, user):
-                # check each reaction and do something accordingly
-                # if league
-                if(str(reaction.emoji) == '\U0001f1f1'):
-                    if(game_desc["LEAGUE"] == None):
-                        set_up_game(game_desc, "LEAGUE")
-                # if osu
-                elif(str(reaction.emoji) == '\U0001f1f4'):
-                    if(game_desc["OSU"] == None):
-                        set_up_game(game_desc, "OSU")
-                print("checking")
-                return (str(reaction) == '\U0001f1f1' or str(reaction) == '\U0001f1f4') and reaction.count >1
-
-            def set_up_game(game_dict, game):
-                game_desc[game] = dict()
-                new_dict = game_desc.get(game)
-                new_dict["desc"] = "The user hasn't logged in to this game yet"
-            # discord.on_reaction_remove(reaction, user)
+                print(str((str(reaction) == '\U0001f1f1' or str(reaction) == '\U0001f1f4') and reaction.count > 1))
+                return (str(reaction) == '\U0001f1f1' or str(reaction) == '\U0001f1f4') and reaction.count > 1
 
             try:
                 reaction, user = await self.bot.wait_for('reaction_add',
                                                          timeout=30,
                                                          check=check)
-            except:
+                # print(reaction)
+            except asyncio.TimeoutError:
                 print("status timed out")
                 temp_embed.color = 15158332
                 await msg.edit(embed=temp_embed)
                 break
+            except:
+                print("some error")
             else:
-                print(game_desc)
+                async def setup_game(game):
+                    game_desc[game] = dict()
+                    new_dict = game_desc.get(game)
+                    new_dict["desc"] = "The user hasn't logged in to {} yet".format(game)
+                    
+                print("pass2")
                 if(str(reaction) == '\U0001f1f1'):
                     game_name = "League of Legends"
+                    if(game_desc.get("LEAGUE") == None):
+                        await setup_game("LEAGUE")
                     stats_desc = game_desc.get("LEAGUE")
                 if(str(reaction) == '\U0001f1f4'):
                     game_name = "Osu"
+                    if(game_desc.get("OSU") == None):
+                        await setup_game("OSU")
                     stats_desc = game_desc.get("OSU")
                 if(stats_desc.get("queue") == None):
-                    print("adding field")
                     stats_desc["queue"] = field_count
                     field_count = field_count + 1
                     temp_embed.add_field(name=game_name,
                                          value=stats_desc.get("desc"),
                                          inline="false")
                 else:
-                    print("removing field")
                     # remove the field
                     field_count = field_count - 1
-                    temp_queue = stats_desc.get("queue")
+                    temp_queue=stats_desc.get("queue")
                     temp_embed.remove_field(temp_queue)
-                    stats_desc["queue"] = None
+                    stats_desc["queue"]=None
                     # fix all the queue index
                     for game_dict in game_desc:
-                        curr_queue = game_desc.get(game_dict).get("queue")
+                        curr_queue=game_desc.get(game_dict).get("queue")
                         if(curr_queue != None):
                             if(curr_queue > temp_queue):
-                                game_desc.get(game_dict)["queue"] = curr_queue-1
+                                game_desc.get(game_dict)["queue"]=curr_queue - 1
                 print("GAME DESC BEING ADDED: " + game_name)
                 await msg.edit(embed=temp_embed)
         print("Done status")

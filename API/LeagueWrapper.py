@@ -1,12 +1,12 @@
 
 import aiohttp
 import asyncio
-
-class LeagueWrapper:
+from APIWrapper import GameAPIKeyWrapper
+class LeagueWrapper(GameAPIKeyWrapper):
     def __init__(self, api_key):
         self.api_key = api_key
 
-    async def get_league_stats_queue(self, summoner_name):
+    async def get_game_stats(self, ign):
         ''' (LeagueWrapper,Str) -> JSON Obj
         Takes in a summoner name and returns a json obj
         List of queuetypes (dict)
@@ -20,7 +20,7 @@ class LeagueWrapper:
         'losses'
         '''
         key = '?api_key={}'.format(self.api_key)
-        name_url = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/{}'.format(summoner_name) + key
+        name_url = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/{}'.format(ign) + key
         # get the encryted summ id
         async with aiohttp.ClientSession() as cs:
             async with cs.request('GET', name_url) as r:

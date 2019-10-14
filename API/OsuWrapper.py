@@ -1,10 +1,11 @@
 import aiohttp
 import asyncio
+from APIWrapper import GameAPIKeyWrapper
 
-class OsuWrapper:
+class OsuWrapper(GameAPIKeyWrapper):
     def __init__(self, api_key):
         self.api_key = api_key
-    async def get_osu_stats(self, osu_name):
+    async def get_game_stats(self, ign):
         ''' (OsuWrapper,Str) -> JSON Obj
         Takes in a osu name or id and returns a json obj
         List of of users
@@ -28,7 +29,7 @@ class OsuWrapper:
         async with aiohttp.ClientSession() as cs:
             # Check all modes
             for index in range(4):
-                stats_mid_url = '/api/get_user?u={}&m={}'.format(osu_name, index)
+                stats_mid_url = '/api/get_user?u={}&m={}'.format(ign, index)
                 stats_url = stats_url_base + stats_mid_url + key
                 async with cs.request('GET', stats_url) as r:
                     response_stats = await r.json()

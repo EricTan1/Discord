@@ -66,7 +66,11 @@ async def on_ready():
         with open(PERSONA_PATH, 'r') as data:
             _persona_dict = json.load(data)
         # now save the info as "Backup"
-        print("successful load")
+        file = open(PERSONABACKUP_PATH, "w")
+        data = json.dumps(self.persona_dict)
+        file.write(data)
+        file.close()
+        print("Finished backing up data\n")
     except:
         print("empty/invalid json file for persona keys")
         _persona_dict = dict()

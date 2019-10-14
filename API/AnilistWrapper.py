@@ -1,9 +1,7 @@
 import aiohttp
 import asyncio
-
-class AnilistWrapper:
-    def __init__(self, base_url):
-        self.base_url = base_url
+from APIWrapper import GameAPIURLWrapper
+class AnilistWrapper(GameAPIURLWrapper):
     async def get_aniList(self, user):
         ''' (str) -> Json obj
         takes in a username off anilist and returns a json object with
